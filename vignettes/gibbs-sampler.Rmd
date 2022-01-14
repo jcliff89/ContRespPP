@@ -1,0 +1,195 @@
+---
+title: "Using the ContRespPP::gibbs.sampler Function"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{gibbs-sampler}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+#knitr::opts_chunk$set(
+#  collapse = TRUE,
+#  comment = "#>"
+#)
+options(rmarkdown.html_vignette.check_title = FALSE)
+```
+
+First, load the package and the example dataset included in the package, which contains the continuous response variable and design matrix from the experiment (see `?exData` for further description).
+
+```{r setup}
+#library(ContRespPP)  # Uncomment in final version
+devtools::load_all() # Delete in final version
+data("exData")
+```
+  
+  
+# Set Function Parameters
+  
+To use `ContRespPP::gibbs.sampler`, the function arguments need to be set. Arguments can be thought of as one of five types: experiment data, priors, simulation parameters, analysis parameters, and optional arguments.
+  
+  
+## Experiment Data
+
+These arguments include the design matrix (*or dataframe?*), response column (of matrix *or dataframe?*), and number of observations seen in the design matrix so far (the example has 80 total observations, with the first 75 seen).  
+  
+*Does Y have to be a matrix? We may make it easier on users and simplify the code by also allowing a vector. What do you think?*
+
+```{r experimentDataArgs}
+# Design Matrix
+X <- exData[,c(2:14)]
+# Response Column
+Y <- as.matrix(exData[,1], ncol=1)
+# Observations Seen
+n.seen <- 75
+```
+  
+  
+## Priors
+  
+*This section probably needs a lot more info about how these are derived and how they relate to the method, which I'm not totally sure on.*  
+  
+*Could beta.mean and beta.precision also be a vector?*
+  
+*Why do we have precision.b? (it is not used, so maybe it can be deleted along with precision.a and just assign tau.int?)*
+  
+```{r priorArgs}
+# Means for betas
+beta.mean <- matrix(
+  c(400, 50, 50, -25, -50, 100, 100, rep(0, 6)),
+  ncol = 1
+)
+
+# Precisions for betas
+beta.precision <- matrix(
+  c(1/10000, 1/10000, 1/10000, 1/2500, 1/2500, 1/10000, 1/10000, rep(1/10000, 6)), 
+  ncol = 1
+)
+
+# Precision for tau
+precision.a <- 0.0001
+precision.b <- 0.0001
+tau.int <- precision.a
+```
+  
+  
+## Simulation Parameters
+  
+These parameters specify the amount of burn-in and number of posterior samples for the conditional draws and non-conditional draws.
+  
+*Let me know what numbers you want to use for the example*
+  
+```{r simParamArgs}
+# Conditional Draws
+b.sim <- 20000
+burn.in <- 2000
+
+# Non-Conditional Draws
+n.sim <- 500
+y.burnin <- 100
+```
+  
+  
+## Analysis Parameters
+
+*This section probably needs a lot more info about how these are derived and how they relate to the method, which I'm not totally sure on.*   
+  
+*I wonder if the mission probabilities would be clearer if constructed in a dataframe? Should we allow both?*  
+  
+```{r analysisParamArgs}
+# Threshold Value
+theta.t=0.8
+
+# Metric Threshold Value
+phi.0<-400
+
+# Mission Probabilities (likelihood of encountering a factor level)	
+prob <- matrix(
+  c(1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 5, 1/2, 1/2, 4/9, 5/9, 1/3, 1/3, 1/3, 1/2, 1/2, 1/2, 1/2), 
+  ncol = 2, 
+  dimnames = list(NULL, c("factor", "probability"))
+)
+```
+
+## Optional Arguments
+  
+*We need to decide if factor.no.2way can also accept column names*  
+  
+*Question: does it work with both a vector and single value? I saw in your example run script that it was first input as a vector but then just changed to a value of 3. Does that matter?*  
+
+By default, the model will utilize two-way interactions from all the main effects defined in the `prob` object. One option the user has is to remove a factor from consideration within the two-way interactions. For example, we will remove the third model parameter from consideration.
+  
+```{r optParamArg1}
+factor.no.2way <- c(3)
+```
+  
+By default, the function will assign the column names from the design matrix to the result posterior dataframe. Alternatively, users can specify their own column names for the result dataframe.
+
+```{r optParamArg2}
+colnames.pick<-c(
+  "eta", "alpha", "beta", "omega2", "omega3", 
+  "theta", "gamma", "alphabeta", "alphatheta", 
+  "alphagamma", "betatheta", "betagamma", "thetagamma", "tau"
+)
+```
+  
+
+# Run Gibbs Sampler
+
+Now that the arguments are all specified, we are ready to run the gibbs.sampler.
+
+```{r gibbsSampler, eval = FALSE}
+set.seed(512) # for reproducibility
+
+results <- gibbs.sampler(
+  X = X, 
+  Y = Y, 
+  n.seen = n.seen, 
+  beta.mean = beta.mean, 
+  tau.int = tau.int, 
+  a.t = a.t, 
+  b.t = b.t,
+  n.sim = n.sim, 
+  y.burnin = y.burnin, 
+  b.sim = b.sim, 
+  b.burnin = b.burnin,
+  phi.0 = phi.0, 
+  theta.t = theta.t, 
+  prob = prob, 
+  factor.no.2way = factor.no.2way, 
+  colnames.pick
+)
+```
+
+*Note: I think so we don't run the function every time the package is built, we can set eval = FALSE so it still shows how to run the function. Then we can include an internal dataset with a results object to use within the vignette to demonstrate how we can call different outputs. Just running the function is simpler, just will take longer on updated package builds, which may not be a big deal but does affect Github installs (which will become mostly irrelevant once it's published on CRAN). What do you think?*
+
+As the function runs, it will print status updates. (*Update numbers below based on example values used*)
+
+```{r, echo = FALSE}
+cat("Running Simulation 6 of 10")
+```
+
+When the function is done, it will print `Simulation Complete`.
+
+# Use Results
+  
+*Depending on if we decide to run the function when building the vignette (the simpler option, just will take a bit for the initial package build). We'll need to remove these eval = FALSE lines to just print the results objects. If we go with the alternative, then I'll need to add the internal result object and a block to read it in silently.*  
+  
+Calling the results object prints the summarized predictive probability result (of the test ending in a successful evaluation of the system), which can also be accessed using `pp` in the results list.
+  
+```{r, eval = FALSE}
+results
+results$pp
+```
+  
+The full dataframe of non-conditional posterior draws is accessible with `posterior` in the results list.
+  
+```{r, eval = FALSE}
+head(results$posterior)
+```
+  
+The vector of test success results for each posterior draw is accessible with `indicator` in the results list.
+  
+```{r, eval = FALSE}
+head(results$indicator)
+```
