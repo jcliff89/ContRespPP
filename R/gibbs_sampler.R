@@ -15,9 +15,11 @@
 #'   (or the mean of each of the priors on the model parameters), ordered
 #'   the same as the columns of the design matrix, X. It also serves as
 #'   the initialization for the model parameters.
-#' @param tau.int The initial value for the precision of the ANOVA model, tau.
-#' @param a.t Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.
-#' @param b.t Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.
+#' @param beta.precision Precisions of the multivariate normal distribution
+#'   (precision of each of the priors on the model parameters), corresponding
+#'   to the beta.mean values.
+#' @param precision.a Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.
+#' @param precision.b Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.
 #' @param n.sim Number of non-conditional posterior draws (i.e., number of
 #'   draws that will be returned to the user from the function after burn-in draws for the
 #'   non-conditional draws are removed).
@@ -49,7 +51,7 @@
 #'   Printing the result object will display the predicted probability result.
 #' @importFrom stats aggregate rgamma rmultinom rnorm
 #' @export
-gibbs.sampler <- function(X, Y, n.seen, beta.mean, tau.int, a.t, b.t,
+gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, precision.a, precision.b,
                           n.sim, y.burnin, b.sim, b.burnin,
                           phi.0, theta.t, prob, factor.no.2way = NA, colnames.pick = NA) {
 
@@ -60,9 +62,8 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, tau.int, a.t, b.t,
   if(! is.numeric(Y)) { stop("Y must be a numeric type.") }
   if(! is.numeric(n.seen)) { stop("n.seen must be a numeric type.") }
   if(! is.numeric(beta.mean)) { stop("beta.mean must be a numeric type.") }
-  if(! is.numeric(tau.int)) { stop("tau.int must be a numeric type.") }
-  if(! is.numeric(a.t)) { stop("a.t must be a numeric type.") }
-  if(! is.numeric(b.t)) { stop("b.t must be a numeric type.") }
+  if(! is.numeric(precision.a)) { stop("precision.a must be a numeric type.") }
+  if(! is.numeric(precision.b)) { stop("precision.b must be a numeric type.") }
   if(! is.numeric(n.sim)) { stop("n.sim must be a numeric type.") }
   if(! is.numeric(y.burnin)) { stop("y.burnin must be a numeric type.") }
   if(! is.numeric(b.sim)) { stop("b.sim must be a numeric type.") }
@@ -157,6 +158,9 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, tau.int, a.t, b.t,
 
   ##### Create an object "posterior.results" to keep track of posterior draws and return from function
   posterior.results <- matrix(NA_real_, nrow=n.sim, ncol=(num.param + 1), dimnames=list(NULL, colnames.pick))
+
+  ##### Calculate initial value for tau as mean of gamma distribution
+  tau.int <- precision.a / precision.b
 
   ##### Store the initial values for the model parameters in the matrix that was just created
   posterior.results[1, ] <- c(beta.mean, tau.int)
@@ -340,11 +344,11 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, tau.int, a.t, b.t,
 
       #Sample parameter | data and other parameters (k or k-1)
       #a for parameter | data and other parameters
-      a.val <- a.t + n.all / 2
+      a.val <- precision.a + n.all / 2
 
       #b for parameter | data and other parameters
       tau.sum <- sum((full.design[, 1] - full.design[, 2:ncol(full.design)] %*% param.it) ^ 2)
-      b.val <- b.t + 0.5 * tau.sum
+      b.val <- precision.b + 0.5 * tau.sum
 
       #Sample parameter | data and other parameters
       post[k, (num.param + 1)] <- rgamma(1, a.val, b.val)

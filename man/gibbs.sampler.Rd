@@ -9,9 +9,9 @@ gibbs.sampler(
   Y,
   n.seen,
   beta.mean,
-  tau.int,
-  a.t,
-  b.t,
+  beta.precision,
+  precision.a,
+  precision.b,
   n.sim,
   y.burnin,
   b.sim,
@@ -37,11 +37,13 @@ of the design matrix, X, that have been observed).}
 the same as the columns of the design matrix, X. It also serves as
 the initialization for the model parameters.}
 
-\item{tau.int}{The initial value for the precision of the ANOVA model, tau.}
+\item{beta.precision}{Precisions of the multivariate normal distribution
+(precision of each of the priors on the model parameters), corresponding
+to the beta.mean values.}
 
-\item{a.t}{Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.}
+\item{precision.a}{Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.}
 
-\item{b.t}{Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.}
+\item{precision.b}{Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.}
 
 \item{n.sim}{Number of non-conditional posterior draws (i.e., number of
 draws that will be returned to the user from the function after burn-in draws for the
