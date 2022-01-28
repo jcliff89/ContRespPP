@@ -89,32 +89,55 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, precision.a, 
   # ERROR: Design matrix values should be all 0/1
   if(! all(X == 0 | X == 1)) { stop("Not all values in design matrix X are 0 or 1") }
 
+  # ERROR: Design matrix should have intercept
+  if (! (all(X[,1] == 1))) { stop("Model must have an intercept, where the first column of the design matrix contains all 1 values; not all values in the first column of the design matrix are 1") }
+
   # ERROR: Theta.t should be 0-1
-  if(! (theta.t >= 0 & theta.t <= 1)) { stop("theta.t is not a proportion within [0,1]") }
+  if(! (theta.t >= 0 & theta.t <= 1)) { stop("theta.t is not a probability in [0,1]") }
 
   # ERROR: n.seen should be less than size of design matrix X
-  if(n.seen > nrow(X)) { stop("n.seen value is greater than number of rows available in the design matrix X") }
+  if(n.seen > nrow(X)) { stop("n.seen value must be less than or equal to the number of rows available in the design matrix X") }
 
   # ERROR: n.seen should be less than number of test responses Y
-  if(n.seen > length(Y)) { stop("n.seen value is greater than number of rows available in the response vector Y") }
+  if(n.seen > length(Y)) { stop("n.seen value must be less than or equal to the number of rows available in the response vector Y") }
+
+  # ERROR: gamma prior on tau parameters must be positive
+  if(! (precision.a > 0)) { stop("Gamma parameters must be greater than 0 (precision.a is not)") }
+  if(! (precision.b > 0)) { stop("Gamma parameters must be greater than 0 (precision.b is not)") }
 
 
   ##### Warnings to user when function will run alright but something is strange
 
   # WARNING: Burn-in has more draws than actual simulation
-  if(y.burnin > n.sim) { warning("Burn-in draws (y.burnin) higher than non-conditional posterior draws (n.sim).") }
-  if(b.burnin > b.sim) { warning("Burn-in draws (b.burnin) higher than non-conditional posterior draws (b.sim).") }
+  if(y.burnin > n.sim) {
+    warning(
+      "Burn-in draws (y.burnin) higher than non-conditional posterior draws (n.sim).",
+      immediate. = TRUE
+    )
+  }
+  if(b.burnin > b.sim) {
+    warning(
+      "Burn-in draws (b.burnin) higher than non-conditional posterior draws (b.sim).",
+      immediate. = TRUE
+    )
+  }
 
   # WARNING: Unobtainable certainty thresholds for successful passing of test
   if(theta.t == 0 | theta.t == 1) {
-    warning("A theta.t equal to 0 or 1 are not obtainable, so the conclusion with these values will always be
-             that the test was not successfully passed.")
+    warning(
+      "A theta.t equal to 0 or 1 are not obtainable, so the conclusion with these values will always be
+       that the test was or was not successfully passed.",
+      immediate. = TRUE
+    )
   }
 
   # WARNING: Posterior not predictive probability
   if(n.seen == nrow(X)) {
-    warning("Since n.seen is the same as the number of rows of the design matrix,
-             note you are calculating the posterior probability and not the predictive probability.")
+    warning(
+      "Since n.seen is the same as the number of rows of the design matrix,
+       note you are calculating the posterior probability and not the predictive probability.",
+      immediate. = TRUE
+    )
   }
 
 
