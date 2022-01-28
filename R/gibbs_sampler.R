@@ -82,8 +82,17 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, precision.a, 
   if(! all(prob[,2] >= 0 & prob[,2] <= 1)) {
     stop("prob object contains probability values not within [0,1]")
   }
+
+  # ERROR: prob object probability values should sum to 1 within groups
   if(! all(aggregate(prob[,2], by = list(prob[,1]), sum)[,2] == 1)) {
-    stop("prob object contains factor levels with probability values that do not sum to 1")
+    prob_sumNot1 <- aggregate(prob[,2], by = list(prob[,1]), sum)[aggregate(prob[,2], by = list(prob[,1]), sum)[,2] != 1,]
+    colnames(prob_sumNot1) <- c("Factor", "Sum")
+    prob_sumNot1$Label <- paste("Factor", prob_sumNot1$Factor, "sums to", prob_sumNot1$Sum)
+    prob_sumNot1_errorMsg <- paste(
+      "prob object contains factor levels with probability values that do not sum to 1: ",
+      paste(prob_sumNot1$Label, collapse = ", ")
+    )
+    stop(prob_sumNot1_errorMsg)
   }
 
   # ERROR: Design matrix values should be all 0/1
@@ -150,6 +159,9 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, precision.a, 
   # the last line that will be NA because it didn't have an inner draw.
   n.sim <- n.sim + y.burnin + 1
   b.sim <- b.sim + b.burnin
+
+  # If needed, make the length of Y match X for creating the full design matrix
+  if(length(Y) < nrow(X)){ Y <- matrix(c( Y, rep(NA_real_, nrow(X)-length(Y)) ), ncol = 1) }
 
   ##### Create a matrix with the response in the first column, and the remaining columns as the design matrix
   full.design <- cbind(Y, X)
@@ -265,13 +277,17 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, precision.a, 
 
     ##### Remove the factors not needed for two-way interactions
     if(! is.na(factor.no.2way)) {
-      sub.missions <- missions[, colnames(missions) != factor.no.2way]
+      sub.missions <- missions[, colnames(missions) != factor.no.2way] # This currently drops by name
+    } else {
+      sub.missions <- missions # I added this since factor.no.2way = NA meant it couldn't find a sub.missions object
     }
+
     ##### Remove the intercept / reference cell number
     sub.missions <- sub.missions[,-1]
 
     ##### Get the number of two-way interactions needed from the remaining values: (n * (n-1))/2
     num.int <- ((ncol(sub.missions)) * (ncol(sub.missions) - 1)) / 2
+
     ##### Create a matrix to store the two-way interactions in
     missions.int <- matrix(NA, ncol = num.int, nrow = num.missions)
 
