@@ -285,23 +285,38 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, precision.a, 
     ##### Remove the intercept / reference cell number
     sub.missions <- sub.missions[,-1]
 
-    ##### Get the number of two-way interactions needed from the remaining values: (n * (n-1))/2
-    num.int <- ((ncol(sub.missions)) * (ncol(sub.missions) - 1)) / 2
+    ##### Get the number of two-way interactions needed from the remaining values:
+    # (n * (n-1))/2 gives you the total number of interactions that are possible, with no constraints
+    # length(prob[duplicated(prob[, 1]), 1][duplicated(prob[duplicated(prob[, 1]), 1])]) can be broken down as follows:
+    #     prob[duplicated(prob[, 1]), 1] tells you what values are duplicated (all factors will have at least one duplicate; the number of duplicates
+    #         are the number of levels for each factor minus 1)
+    #     prob[duplicated(prob[, 1]), 1][duplicated(prob[duplicated(prob[, 1]), 1])] tells you what values are duplicated of the duplicated; any factor that has only two
+    #         levels will not be presented here, only factors that have more than two levels. For example, if factor 1 had four levels, the previous commented code would
+    #         result in "1 1 1" while this commented code would result in "1 1".
+    #     length(prob[duplicated(prob[, 1]), 1][duplicated(prob[duplicated(prob[, 1]), 1])]) then takes the length of the previous commented code (in our example 2);
+    # This is subtracted off of the first piece becuase these are the number of columns that cannot have two way interactions with themselves. (i.e., factor levels are
+    #    independent of themselves and will have no interactoin).
+
+    num.int <- ((ncol(sub.missions)) * (ncol(sub.missions) - 1)) / 2 - length(prob[duplicated(prob[, 1]), 1][duplicated(prob[duplicated(prob[, 1]), 1])])
 
     ##### Create a matrix to store the two-way interactions in
     missions.int <- matrix(NA, ncol = num.int, nrow = num.missions)
 
     ##### Get two-way interactions by multiplying each main effect column (element-wise) by the main effect columns that follow it, one column at a time.
+    # If the main effect column that follows at any point is the same as the main effect column name that is being used then the element-wise muliplication is skipped
+    #   and the next column is considered. This avoids having two way interactions within a factor.
+    #  If the column name is the same, the
     for(t in 1:(ncol(sub.missions) - 1)) {
       for(u in (t + 1):ncol(sub.missions)) {
-        missions.int[, ((sum(! is.na(missions.int)) / num.missions) + 1)] <- sub.missions[, t] * sub.missions[, u]
+        if( colnames(sub.missions)[t] != colnames(sub.missions)[u] ) {
+          missions.int[, ((sum(! is.na(missions.int)) / num.missions) + 1)] <- sub.missions[, t] * sub.missions[, u]
+        }
       }
     }
 
     ##### Create the full mission set
     mission.set <- cbind(missions, missions.int)
     mission.set <- t(mission.set)
-
 
     ##### Create an object "post" for saving individual conditional posterior draws for the inner loop
     post <- matrix(NA_real_, nrow = b.sim, ncol = (num.param + 2), dimnames = list(NULL, c(colnames.pick, "m")))
