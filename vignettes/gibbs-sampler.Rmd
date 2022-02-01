@@ -132,21 +132,35 @@ y.burnin <- 100
 
 To determine if the parameter of interest exceeds the threshold value, the probability of this occurring can be calculated. If this probability is high enough, then the question can be evaluated as met (or not met if low enough). This threshold probability is `theta.t`, a probability which is used to express how much certainty is required before stating that the parameter of interest exceeds the threshold value. 
 
-As defined above, `phi.0` is the threshold value that must be obtained by the parameter of interest for the question to be evaluated as met. `factors` is the number of factors in the model (e.g., $\alpha_i$ with $i=1,2$ is 1 factor). `levels` contains the number of levels for each factor (e.g., $\alpha_i$ with $i=1,2$ has 2 levels), and may be a vector, a matrix, or a dataframe. **Edit to description for helper vs main matrix**
+As defined above, `phi.0` is the threshold value that must be obtained by the parameter of interest for the question to be evaluated as met. 
 
-This analysis uses a Bayesian Mission Mean (BMM; Sieck and Christensen 2021). Each combination of factor levels creates a "mission set" for the system being evaluated that represent operational environments proposed for use. Using a BMM provides a method to obtain a summary statistic based on performance across operational environments without artificially reducing the operational variance. This is accomplished by considering the joint distribution of mission sets and mission means, and then marginalizing over mission sets to obtain a mixture distribution of mission means. 
-
-Mission sets are drawn based on the selected anticipated likelihood of encountering levels. Once the mission sets and the conditional posterior distribution on the model parameters are obtained from the nested sampler, they can be used to induce a distribution on our parameter of interest. This is accomplished by using the mission sets to mix the mission means from the posterior distribution. This induced distribution can then be used to calculate the direct probability that the parameter of interest is greater than the threshold value across all mission sets. The likelihood of encountering are captured in the object `likelihood.encountering`, and can be a vector, dataframe, or matrix. This object, unlike the priors, must include the likelihood of encountering a level for all model parameters (constrained or unconstrained). As an example, below indicates that the likelihood of encountering $\alpha_1$ is 1/2 and the likelihood of encountering $\alpha_2$ is 1/2. Of note, the likelihood of encountering the levels must be in the same order as defined by the factor in the design matrix.
-  
 ```{r analysisParamArgs}
 # Threshold Value
-theta.t=0.8
+theta.t <- 0.8
 
 # Metric Threshold Value
-phi.0<-400
+phi.0 <- 400
+```
 
-## ** TO-DO **: Once helper function is constructed, add example here *****************************
+The `prob` object is used to support a Bayesian Mission Mean analysis. This analysis uses a Bayesian Mission Mean (BMM; Sieck and Christensen 2021). Each combination of factor levels creates a "mission set" for the system being evaluated that represent operational environments proposed for use. Using a BMM provides a method to obtain a summary statistic based on performance across operational environments without artificially reducing the operational variance. This is accomplished by considering the joint distribution of mission sets and mission means, and then marginalizing over mission sets to obtain a mixture distribution of mission means.  
+  
+Mission sets are drawn based on the selected anticipated likelihood of encountering levels. Once the mission sets and the conditional posterior distribution on the model parameters are obtained from the nested sampler, they can be used to induce a distribution on our parameter of interest. This is accomplished by using the mission sets to mix the mission means from the posterior distribution. This induced distribution can then be used to calculate the direct probability that the parameter of interest is greater than the threshold value across all mission sets.  
+  
+You can use the `prob.creator` function to construct the necessary `prob` matrix for the `gibbs.sampler` function. For `prob.creator`: `num.factors` is the number of factors in the model (e.g., $\alpha_i$ with $i=1,2$ is 1 factor; from above, this example has 5 factors). `num.factor.levels` contains the number of levels for each factor (e.g., $\alpha_i$ with $i=1,2$ has 2 levels), and may be a vector, a matrix, or a dataframe.  
+  
+The likelihood of encountering are captured in the object `likelihood.encountering`, and can be a vector, dataframe, or matrix. This object, unlike the priors, must include the likelihood of encountering a level for all model parameters (constrained or unconstrained). As an example, below indicates that the likelihood of encountering $\alpha_1$ is 1/2 and the likelihood of encountering $\alpha_2$ is 1/2. Of note, the likelihood of encountering the levels must be in the same order as defined by the factor in the design matrix.  
+  
+```{r, echo = FALSE}
+num.factors <- 5
+num.factor.levels <- c(2, 2, 3, 2, 2)
+likelihood.encountering <- c(1/2, 1/2, 4/9, 5/9, 1/3, 1/3, 1/3, 1/2, 1/2, 1/2, 1/2)
 
+prob <- prob.creator(num.factors, num.factor.levels, likelihood.encountering, print.result = TRUE)
+```
+
+You may also write your own prob matrix, as shown below.
+
+```{r}
 # Mission Probabilities (likelihood of encountering a factor level)	
 prob <- matrix(
   c(1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 5, 1/2, 1/2, 4/9, 5/9, 1/3, 1/3, 1/3, 1/2, 1/2, 1/2, 1/2), 
@@ -154,7 +168,8 @@ prob <- matrix(
   dimnames = list(NULL, c("factor", "probability"))
 )
 ```
-
+  
+  
 ## Optional Arguments
 
 By default, the model will utilize two-way interactions from all the main effects defined in the `prob` object. One option the user has is to remove a factor from consideration within the two-way interactions. For example, we will remove the third model parameter from consideration because it is an uncontrolled factor in the experiment. Note that `factor.no.2way` should be provided factor numbers to drop two-way interactions involving that factor.
