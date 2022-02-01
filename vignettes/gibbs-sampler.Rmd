@@ -15,11 +15,13 @@ vignette: >
 options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
-First, load the package and the example dataset included in the package, which contains the continuous response variable and design matrix from the experiment (see `?exData` for further description).
+This example is derived from Sieck and Christensen (2021). For background information such as the research question, why the priors presented here were selected, the details of mission probabilities, etc, please reference "A framework for improving the efficiency of operational testing through Bayesian adaptive design" (Sieck and Christensen, 2021).
+
+To use this package, first load the package and the example data set included in the package. The provided data set contains a continuous response variable and design matrix for the experiment (see `?exData` for further description).
 
 ```{r setup}
-#library(ContRespPP)  # Uncomment in final version
-devtools::load_all() # Delete in final version
+library(ContRespPP)  # Uncomment in final version
+#devtools::load_all() # Delete in final version
 data("exData")
 ```
   
@@ -31,58 +33,94 @@ To use `ContRespPP::gibbs.sampler`, the function arguments need to be set. Argum
   
 ## Experiment Data
 
-These arguments include the design matrix (*or dataframe?*), response column (of matrix *or dataframe?*), and number of observations seen in the design matrix so far (the example has 80 total observations, with the first 75 seen).  
-  
-*Does Y have to be a matrix? We may make it easier on users and simplify the code by also allowing a vector. What do you think?*
+The experiment data arguments include what is commonly referred to in regression as the "design matrix", the response, and the number of observations that have been seen in the design matrix so far. 
+
+The design matrix is a $n$ by $p$  object (where $p$ is the number of model parameters), which can have the structure of either a dataframe or a matrix. The response contains all of the observations seen to date, which may be in the form of a vector, a dataframe, or a matrix. The response may either have the number of observations that have been seen, or it may have $n$ observations where the observations that have been seen have "NA" entries. 
+
+For this example, we have data loaded in an file named `exData`. In this data set, the first column is the response variable, and the remaining 13 columns are the entries of design matrix. The purpose of this simulated experiment is to determine if the mean number of miles traveled on one charge is greater than or equal to 400 miles (for a simulated electric semi-truck). We will refer to the mean number of miles traveled as the parameter of interest ($\phi$), and the threshold value the parameter of interest most obtain as $\phi_0$ (coded as `phi.0`).
+
+The experiment selected was a $2^4$ full factorial with five replicates that included main effects and two-way interactions (excluding the uncontrollable factor, $\omega_k$) for the experimental design, resulting in 80 test events. This design has a power of 80%, with an 80% confidence level, to detect a difference of 50 miles with a standard
+deviation of 100 miles.
+
+This example assumes that the first 75 observations of the 80 observations have been seen, and seeks to use predictive probability to determine if the last five observations need to be seen to make a determination about the mean number of miles traveled, or if the experiment has provided enough information to stop testing early.
+
+Of note, there are limitations to what this R program can support. 
+
+1. Experimental designs that can be used include fully randomized designs (e.g., factorial designs and optimal designs) and designs that block on replicates.
+
+2. The priors on all model parameters are assumed to be normal, and the prior on the precision is assumed to be gamma. The user may select the the appropriate values in these priors; however, these priors were selected to ensure computational efficiency.
+
+3. The data is assumed to follow an reference cell ANOVA data model, where the model parameters are mutually independent. The constraint selected is that the first level of each factor (or an interaction that contains a factor at the first level) are all equal to 0. This gives $\eta$, the baseline parameter, as the first level of each factor. For example, the data model for this data set is:
+
+\[y_{ijklmp|\mu_{ijklm}\sim N(\mu_{ijklm}, \frac{1}{\tau})}\]
+
+where
+
+\[\mu_{ijklm} = \eta + \alpha_i + \beta_j + \omega_k + \gamma_l + \delta+m + \alpha\beta_{(ij)} + \alpha\gamma_{(il)} + \alpha\delta_{(im)} + \beta\gamma_{(jl)} + \beta\delta_{(jm)} + \delta\gamma_{(lm)}\]
+
+and 
+
+\[ i=1, 2\\ j=1, 2 \\ k=1, 2, 3 \text{ (uncontrolled factor)}) \\ l=1,2 \\ m=1,2  \]
+
 
 ```{r experimentDataArgs}
 # Design Matrix
 X <- exData[,c(2:14)]
 # Response Column
-Y <- as.matrix(exData[,1], ncol=1)
+Y <- as.matrix(exData[,1], ncol=1) # could also be a vector e.g., Y <- exData[,1]
 # Observations Seen
 n.seen <- 75
 ```
   
   
 ## Priors
-  
-*This section probably needs a lot more info about how these are derived and how they relate to the method, which I'm not totally sure on.*  
-  
-*Could beta.mean and beta.precision also be a vector?*
-  
-*Why do we have precision.b? (it is not used, so maybe it can be deleted along with precision.a and just assign tau.int?)*
+
+This program uses a reference cell ANOVA model that constrains the first level of each model parameter (or an interaction that contains the first level of a factor) to 0. Therefore, degenerate priors at 0 were selected for these constrained parameters and are not included in the analysis. The (weakly informative) priors for the unconstrained parameters are below:
+
+\[ 
+p(\eta) \sim N(400, 100^2) \\ 
+p(\alpha) \sim N(50, 100^2) \\ 
+p(\beta) \sim N(50, 50^2) \\ 
+p(\omega_2) \sim N(-25, 50^2) \\ 
+p(\omega_3) \sim N(-50, 50^2) \\ 
+p(\gamma) \sim N(100, 100^2) \\ 
+p(\delta) \sim N(100, 100^2) \\ 
+p(\tau) ~ \sim \text{Gam}(0.0001, 0.0001)
+\]
+
+The prior on all two way interactions is $N(0, 100^2)$.
+
+The set of unconstrained model parameters is captured by $\beta$ (not to be confused with $\beta_j$). The mean of all the priors (excluding $\tau$) are assigned to `beta.mean`, which can either be a matrix (as below) or a vector. The **precision** of the prior is assigned to `beta.precision`, and may also be either a matrix (as below) or a vector. This results in a prior on $\beta$ that is a multivariate normal distribution with a mean vector equal to the  mean of the priors and a precision matrix with a diagonal of the prior precisions and off-diagonals of 0 (to represent independent factors).
+
+The sampler will initiate the MCMC chain at the mean of the priors selected. For more specific details on the priors, refer to Sieck and Christensen (2021).
   
 ```{r priorArgs}
 # Means for betas
 beta.mean <- matrix(
   c(400, 50, 50, -25, -50, 100, 100, rep(0, 6)),
   ncol = 1
-)
+) # could also be vector: beta.mean <- c(400, 50, 50, -25, -50, 100, 100, rep(0, 6))
 
 # Precisions for betas
 beta.precision <- matrix(
   c(1/10000, 1/10000, 1/10000, 1/2500, 1/2500, 1/10000, 1/10000, rep(1/10000, 6)), 
   ncol = 1
-)
+) # could also be vector: beta.precision <- c(1/10000, 1/10000, 1/10000, 1/2500, 1/2500, 1/10000, 1/10000, rep(1/10000, 6))
 
 # Precision for tau
 precision.a <- 0.0001
 precision.b <- 0.0001
-tau.int <- precision.a
 ```
   
   
 ## Simulation Parameters
   
-These parameters specify the amount of burn-in and number of posterior samples for the conditional draws and non-conditional draws.
-  
-*Let me know what numbers you want to use for the example*
+These parameters specify the amount of burn-in and number of posterior samples for the conditional draws (i.e., the nested sampler that draws observations of the model parameters, conditioned on the seen and a set of unseen data as defined by the outer sampler) and non-conditional draws (i.e., the outer sampler that draws a set of unseen data for the remaining observations). See Sieck and Christensen (2021) for more details, to include flow charts of the process. 
   
 ```{r simParamArgs}
 # Conditional Draws
 b.sim <- 20000
-burn.in <- 2000
+b.burnin <- 2000
 
 # Non-Conditional Draws
 n.sim <- 500
@@ -92,9 +130,13 @@ y.burnin <- 100
   
 ## Analysis Parameters
 
-*This section probably needs a lot more info about how these are derived and how they relate to the method, which I'm not totally sure on.*   
-  
-*I wonder if the mission probabilities would be clearer if constructed in a dataframe? Should we allow both?*  
+To determine if the parameter of interest exceeds the threshold value, the probability of this occurring can be calculated. If this probability is high enough, then the question can be evaluated as met (or not met if low enough). This threshold probability is `theta.t`, a probability which is used to express how much certainty is required before stating that the parameter of interest exceeds the threshold value. 
+
+As defined above, `phi.0` is the threshold value that must be obtained by the parameter of interest for the question to be evaluated as met. `factors` is the number of factors in the model (e.g., $\alpha_i$ with $i=1,2$ is 1 factor). `levels` contains the number of levels for each factor (e.g., $\alpha_i$ with $i=1,2$ has 2 levels), and may be a vector, a matrix, or a dataframe. **Edit to description for helper vs main matrix**
+
+This analysis uses a Bayesian Mission Mean (BMM; Sieck and Christensen 2021). Each combination of factor levels creates a "mission set" for the system being evaluated that represent operational environments proposed for use. Using a BMM provides a method to obtain a summary statistic based on performance across operational environments without artificially reducing the operational variance. This is accomplished by considering the joint distribution of mission sets and mission means, and then marginalizing over mission sets to obtain a mixture distribution of mission means. 
+
+Mission sets are drawn based on the selected anticipated likelihood of encountering levels. Once the mission sets and the conditional posterior distribution on the model parameters are obtained from the nested sampler, they can be used to induce a distribution on our parameter of interest. This is accomplished by using the mission sets to mix the mission means from the posterior distribution. This induced distribution can then be used to calculate the direct probability that the parameter of interest is greater than the threshold value across all mission sets. The likelihood of encountering are captured in the object `likelihood.encountering`, and can be a vector, dataframe, or matrix. This object, unlike the priors, must include the likelihood of encountering a level for all model parameters (constrained or unconstrained). As an example, below indicates that the likelihood of encountering $\alpha_1$ is 1/2 and the likelihood of encountering $\alpha_2$ is 1/2. Of note, the likelihood of encountering the levels must be in the same order as defined by the factor in the design matrix.
   
 ```{r analysisParamArgs}
 # Threshold Value
@@ -102,6 +144,8 @@ theta.t=0.8
 
 # Metric Threshold Value
 phi.0<-400
+
+## ** TO-DO **: Once helper function is constructed, add example here *****************************
 
 # Mission Probabilities (likelihood of encountering a factor level)	
 prob <- matrix(
@@ -112,12 +156,8 @@ prob <- matrix(
 ```
 
 ## Optional Arguments
-  
-*We need to decide if factor.no.2way can also accept column names*  
-  
-*Question: does it work with both a vector and single value? I saw in your example run script that it was first input as a vector but then just changed to a value of 3. Does that matter?*  
 
-By default, the model will utilize two-way interactions from all the main effects defined in the `prob` object. One option the user has is to remove a factor from consideration within the two-way interactions. For example, we will remove the third model parameter from consideration.
+By default, the model will utilize two-way interactions from all the main effects defined in the `prob` object. One option the user has is to remove a factor from consideration within the two-way interactions. For example, we will remove the third model parameter from consideration because it is an uncontrolled factor in the experiment. Note that `factor.no.2way` should be provided factor numbers to drop two-way interactions involving that factor.
   
 ```{r optParamArg1}
 factor.no.2way <- c(3)
@@ -126,7 +166,7 @@ factor.no.2way <- c(3)
 By default, the function will assign the column names from the design matrix to the result posterior dataframe. Alternatively, users can specify their own column names for the result dataframe.
 
 ```{r optParamArg2}
-colnames.pick<-c(
+colnames.pick <- c(
   "eta", "alpha", "beta", "omega2", "omega3", 
   "theta", "gamma", "alphabeta", "alphatheta", 
   "alphagamma", "betatheta", "betagamma", "thetagamma", "tau"
@@ -146,24 +186,22 @@ results <- gibbs.sampler(
   Y = Y, 
   n.seen = n.seen, 
   beta.mean = beta.mean, 
-  tau.int = tau.int, 
-  a.t = a.t, 
-  b.t = b.t,
-  n.sim = n.sim, 
-  y.burnin = y.burnin, 
+  beta.precision = beta.precision,
+  precision.a = precision.a, 
+  precision.b = precision.b,
+  n.sim = 2,#n.sim, 
+  y.burnin = 1,#y.burnin, 
   b.sim = b.sim, 
   b.burnin = b.burnin,
   phi.0 = phi.0, 
   theta.t = theta.t, 
   prob = prob, 
-  factor.no.2way = factor.no.2way, 
-  colnames.pick
+  factor.no.2way = NA, 
+  colnames.pick = colnames.pick
 )
 ```
 
-*Note: I think so we don't run the function every time the package is built, we can set eval = FALSE so it still shows how to run the function. Then we can include an internal dataset with a results object to use within the vignette to demonstrate how we can call different outputs. Just running the function is simpler, just will take longer on updated package builds, which may not be a big deal but does affect Github installs (which will become mostly irrelevant once it's published on CRAN). What do you think?*
-
-As the function runs, it will print status updates. (*Update numbers below based on example values used*)
+As the function runs, it will print status updates. (**Update numbers below based on example values used**)
 
 ```{r, echo = FALSE}
 cat("Running Simulation 6 of 10")
@@ -173,22 +211,22 @@ When the function is done, it will print `Simulation Complete`.
 
 # Use Results
   
-*Depending on if we decide to run the function when building the vignette (the simpler option, just will take a bit for the initial package build). We'll need to remove these eval = FALSE lines to just print the results objects. If we go with the alternative, then I'll need to add the internal result object and a block to read it in silently.*  
+**Add code chunk to quietly read-in results object**
   
-Calling the results object prints the summarized predictive probability result (of the test ending in a successful evaluation of the system), which can also be accessed using `pp` in the results list.
+Calling the results object prints the summarized predictive probability result, which can also be accessed using `pp` in the results list. Predictive probability captures the probability that the test will end in a success--i.e., in this example, the predictive probability that the experiment will end in stating that the mean number of miles traveled is greater than `phi.0`. Ultimately, `pp` helps the user determine if enough information has been obtained about the question of interest to stop testing early. If `pp` is high enough (e.g., greater than 0.8, 0.9, 0.95 depending on the question), then testing can stop and the unseen observations are not needed. Enough information is know and the question can be evaluated successfully. If `pp` is low enough (e.g., 0.05, 0.1), then testing can stop and the unseen observations are not needed. Enough information is known and the question can be evaluated unsuccessfully. If `pp` is moderate (e.g., 0.5, 0.6), more testing is needed before conclusions can be made. In Sieck and Christensen (2021), if `pp` was greater than 0.95 (or less than 0.05) the test was ended early and the question was evaluated as met (or not met); otherwise, the experiment continued.
   
 ```{r, eval = FALSE}
 results
 results$pp
 ```
   
-The full dataframe of non-conditional posterior draws is accessible with `posterior` in the results list.
+The full dataframe of non-conditional posterior draws of model parameters is accessible with `posterior` in the results list. This object will be of use to users who are interested in a factor-level analysis, as well as `pp`.
   
 ```{r, eval = FALSE}
 head(results$posterior)
 ```
   
-The vector of test success results for each posterior draw is accessible with `indicator` in the results list.
+The vector of test success results for each posterior draw is accessible with `indicator` in the results list. Every 0 indicates a set of unseen data that, if seen, would have resulted in saying the mean number of miles traveled on one charge was not greater than `phi.0`. Similarly, every 1 indicates a set of unseen data that, if seen, would have resulted in saying that the mean number of miles traveled on one charger was greater than `phi.0`.
   
 ```{r, eval = FALSE}
 head(results$indicator)
