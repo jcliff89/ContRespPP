@@ -34,8 +34,8 @@
 #'   (i.e., BMM > \code{phi.0}) that the conditional posterior probability must obtain
 #'   (the certainty threshold for conditional P(BMM > \code{phi.0}) ) must obtain for the
 #'   question of interest to be evaluated as successfully passing the test.
-#' @param prob Matrix of the "likelihood of encountering" (or probability of seeing a
-#'   factor level); it is a two column matrix, where the first column identifies the
+#' @param prob Matrix or dataframe of the "likelihood of encountering" (or probability of seeing a
+#'   factor level); it is a two column matrix (or dataframe), where the first column identifies the
 #'   factor numerically and the second column defines the probability of seeing each
 #'   factor level.
 #' @param factor.no.2way Optional vector of model parameters (as defined by prob)
@@ -54,6 +54,14 @@
 gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, precision.a, precision.b,
                           n.sim, y.burnin, b.sim, b.burnin,
                           phi.0, theta.t, prob, factor.no.2way = NA, colnames.pick = NA) {
+
+  # Convert non-matrix inputs to matrix for remainder of function to run smoothly
+  if(any(class(X) == "data.frame")){ X <- as.matrix(X) }
+  if(any(class(Y) == "data.frame")){ Y <- as.matrix(Y) }
+  if(! any(class(Y) == "matrix")){ Y <- matrix(Y, ncol = 1) }
+  if(! any(class(beta.mean) == "matrix")){ beta.mean <- matrix(beta.mean, ncol = 1) }
+  if(! any(class(beta.precision) == "matrix")){ beta.precision <- matrix(beta.precision, ncol = 1) }
+  if(any(class(prob) == "data.frame")){ prob <- as.matrix(prob) }
 
   ##### Validation checks to make sure function will run properly
 
@@ -148,7 +156,6 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, precision.a, 
       immediate. = TRUE
     )
   }
-
 
   ##### The user provides b.sim and n.sim, expecting those to be the number of conditional posterior draws or
   # (non-conditional) posterior draws returned; however code uses b.sim and n.sim as the total number sampled
