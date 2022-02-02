@@ -65,8 +65,8 @@ parameter of interest (the Bayesian mission mean, "BMM") obtaining \code{phi.0}
 (the certainty threshold for conditional P(BMM > \code{phi.0}) ) must obtain for the
 question of interest to be evaluated as successfully passing the test.}
 
-\item{prob}{Matrix of the "likelihood of encountering" (or probability of seeing a
-factor level); it is a two column matrix, where the first column identifies the
+\item{prob}{Matrix or dataframe of the "likelihood of encountering" (or probability of seeing a
+factor level); it is a two column matrix (or dataframe), where the first column identifies the
 factor numerically and the second column defines the probability of seeing each
 factor level.}
 

@@ -12,8 +12,9 @@
 #' @param num.factor.levels Number of levels for each factor (e.g., factor \eqn{\alpha}\ifelse{html}{\out{<sub>i</sub> }}
 #'   with i=1,2 has 2 levels). Input for `num.factor.levels` may be a vector, a matrix, or a dataframe.
 #' @param likelihood.encountering The probability of seeing each level of each factor (e.g., if the factor levels for
-#'   \eqn{\alpha}\ifelse{html}{\out{<sub>i</sub> }} are equally likely, then the probabilities would be c(1/2, 1/2)). The probabilities for each factor
-#'   should sum to one. Input for `likelihood.encountering` may be a vector, a matrix, or a dataframe.
+#'   \eqn{\alpha}\ifelse{html}{\out{<sub>i</sub> }} are equally likely, then the probabilities would be c(1/2, 1/2)).
+#'   The probabilities for each factor should sum to one. Input for `likelihood.encountering` may be a vector, a matrix,
+#'   or a dataframe.
 #' @param print.result Displays final probability matrix.
 #' @return Returns a matrix with two columns, one with the factor number and the other with the likelihoods of encountering.
 #' @export
