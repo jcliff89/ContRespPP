@@ -304,7 +304,8 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, precision.a, 
     # This is subtracted off of the first piece becuase these are the number of columns that cannot have two way interactions with themselves. (i.e., factor levels are
     #    independent of themselves and will have no interactoin).
 
-    num.int <- ((ncol(sub.missions)) * (ncol(sub.missions) - 1)) / 2 - length(prob[duplicated(prob[, 1]), 1][duplicated(prob[duplicated(prob[, 1]), 1])])
+    num.levels.repeat <- sum( prob[duplicated(prob[, 1]), 1][duplicated(prob[duplicated(prob[, 1]), 1])] != factor.no.2way )
+    num.int <- ((ncol(sub.missions)) * (ncol(sub.missions) - 1)) / 2 - num.levels.repeat
 
     ##### Create a matrix to store the two-way interactions in
     missions.int <- matrix(NA, ncol = num.int, nrow = num.missions)
