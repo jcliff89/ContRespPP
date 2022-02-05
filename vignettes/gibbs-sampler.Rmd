@@ -226,7 +226,9 @@ When the function is done, it will print `Simulation Complete`.
 
 # Use Results
   
-**Add code chunk to quietly read-in results object**
+```{r, include=FALSE}
+results <- ContRespPP:::exResult
+```
   
 Calling the results object prints the summarized predictive probability result, which can also be accessed using `pp` in the results list. Predictive probability captures the probability that the test will end in a success--i.e., in this example, the predictive probability that the experiment will end in stating that the mean number of miles traveled is greater than `phi.0`. Ultimately, `pp` helps the user determine if enough information has been obtained about the question of interest to stop testing early. If `pp` is high enough (e.g., greater than 0.8, 0.9, 0.95 depending on the question), then testing can stop and the unseen observations are not needed. Enough information is know and the question can be evaluated successfully. If `pp` is low enough (e.g., 0.05, 0.1), then testing can stop and the unseen observations are not needed. Enough information is known and the question can be evaluated unsuccessfully. If `pp` is moderate (e.g., 0.5, 0.6), more testing is needed before conclusions can be made. In Sieck and Christensen (2021), if `pp` was greater than 0.95 (or less than 0.05) the test was ended early and the question was evaluated as met (or not met); otherwise, the experiment continued.
   
