@@ -1,3 +1,15 @@
+#' Print method for ContRespPP class
+#'
+#' @param x A list of class ContRespPP
+#' @param ... Other arguments passed to \code{print}
+#'
+#' @export
+print.ContRespPP <- function(x, ...) {
+  # Define printing method for results
+  cat("PP Result: ", x$pp)
+  invisible(x)
+}
+
 parameter.data <- function(i, Y, X, full.design) {
   # This function subsets data based on parameter / new reponses
   full.data.set <- cbind(Y, X)
@@ -5,10 +17,4 @@ parameter.data <- function(i, Y, X, full.design) {
   subset.data <- full.data.set[(full.data.set[, i] == 1), ]
   #remove p column and parameter column (i)
   subset.data <- subset.data[, -i]
-}
-
-print.ContRespPP <- function(x) {
-  # Define printing method for results
-  cat("PP Result: ", x$pp)
-  invisible(x)
 }

@@ -56,15 +56,6 @@ that are not incorporated in the two way interactions for the model.}
 
 \item{colnames.pick}{Optional vector of model parameter names in the same order
 as in the design matrix to label the returned dataframe columns.}
-
-\item{phi.0}{Threshold value the parameter of interest (BMM) must obtain
-(i.e., BBM > \code{phi.0}).}
-
-\item{theta.t}{Certainty threshold for the conditional posterior probability of the
-parameter of interest (the Bayesian mission mean, "BMM") obtaining \code{phi.0}
-(i.e., BMM > \code{phi.0}) that the conditional posterior probability must obtain
-(the certainty threshold for conditional P(BMM > \code{phi.0}) ) must obtain for the
-question of interest to be evaluated as successfully passing the test.}
 }
 \value{
 Returns a list with three elements:
