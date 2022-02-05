@@ -146,6 +146,8 @@ gibbs.sampler.posterior <- function(X, Y, n.seen, beta.mean, beta.precision, pre
   prior.tab <- rbind(prior.tab[2:nrow(prior.tab), ], prior.tab[1,])
   colnames(prior.tab) <- c("beta.precision", "beta.mean", "num.obs", "design.matrix.colnum")
 
+  ##### Calculate initial value for tau as mean of gamma distribution
+  tau.int <- precision.a / precision.b
 
   ##### Get column name to assign to results (if not provided, use colnames of design matrix)
   if(is.na(colnames.pick[1])) {colnames.pick <- c(colnames(X), "tau")}
