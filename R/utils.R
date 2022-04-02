@@ -5,8 +5,14 @@
 #'
 #' @export
 print.ContRespPP <- function(x, ...) {
-  # Define printing method for results
-  cat("PP Result: ", x$pp)
+  # Define printing method for predictive prob results
+  if(! is.null(x$pp)){
+    cat("PP Result: ", x$pp)
+  }
+  # Define printing method for posterior prob results
+  if(! is.null(x$probability)){
+    cat("Posterior Probability: ", x$probability)
+  }
   invisible(x)
 }
 
