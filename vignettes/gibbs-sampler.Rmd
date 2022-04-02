@@ -127,7 +127,7 @@ b.sim <- 20000
 b.burnin <- 2000
 
 # Non-Conditional Draws
-n.sim <- 500
+n.sim <- 1000
 y.burnin <- 100
 ```
   
