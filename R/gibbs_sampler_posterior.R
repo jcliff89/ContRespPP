@@ -23,11 +23,6 @@
 #' @param b.burnin Number of burn-in samples for the conditional posterior.
 #' @param phi.0 Threshold value the parameter of interest (BMM) must obtain
 #'   (i.e., BBM > \code{phi.0}).
-#' @param theta.t Certainty threshold for the conditional posterior probability of the
-#'   parameter of interest (the Bayesian mission mean, "BMM") obtaining \code{phi.0}
-#'   (i.e., BMM > \code{phi.0}) that the conditional posterior probability must obtain
-#'   (the certainty threshold for conditional P(BMM > \code{phi.0}) ) must obtain for the
-#'   question of interest to be evaluated as successfully passing the test.
 #' @param prob Matrix or dataframe of the "likelihood of encountering" (or probability of seeing a
 #'   factor level); it is a two column matrix (or dataframe), where the first column identifies the
 #'   factor numerically and the second column defines the probability of seeing each
@@ -221,6 +216,9 @@ gibbs.sampler.posterior <- function(X, Y, beta.mean, beta.precision, precision.a
       ncol = (num.param + 2),
       dimnames = list(NULL, c(colnames.pick, "m"))
     )
+
+  #### Calculate initial value for tau as mean of gamma distribution
+  tau.int <- precision.a / precision.b
 
   ##### Store initial values in the first row
   post[1,] <- c(beta.mean, tau.int, NA_real_)

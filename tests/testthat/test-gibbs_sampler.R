@@ -57,11 +57,11 @@ set.seed(512)
 posterior_results <- gibbs.sampler.posterior(
   X = X[1:75,],
   Y = Y[1:75],
-  n.seen = n.seen,
   beta.mean = beta.mean,
   beta.precision = beta.precision,
   precision.a = precision.a,
   precision.b = precision.b,
+  phi.0 = phi.0,
   b.sim = b.sim,
   b.burnin = b.burnin,
   prob = prob,

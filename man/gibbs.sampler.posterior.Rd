@@ -7,13 +7,13 @@
 gibbs.sampler.posterior(
   X,
   Y,
-  n.seen,
   beta.mean,
   beta.precision,
   precision.a,
   precision.b,
   b.sim,
   b.burnin,
+  phi.0,
   prob,
   factor.no.2way = NA,
   colnames.pick = NA
@@ -24,9 +24,6 @@ gibbs.sampler.posterior(
 which model parameters are active in each test event).}
 
 \item{Y}{A vector of the responses from the test.}
-
-\item{n.seen}{Number of test events already observed (i.e., the number of rows
-of the design matrix, X, that have been observed).}
 
 \item{beta.mean}{Mean vector of the multivariate normal distribution
 (or the mean of each of the priors on the model parameters), ordered
@@ -45,6 +42,9 @@ to the beta.mean values.}
 for each non-conditional draw.}
 
 \item{b.burnin}{Number of burn-in samples for the conditional posterior.}
+
+\item{phi.0}{Threshold value the parameter of interest (BMM) must obtain
+(i.e., BBM > \code{phi.0}).}
 
 \item{prob}{Matrix or dataframe of the "likelihood of encountering" (or probability of seeing a
 factor level); it is a two column matrix (or dataframe), where the first column identifies the

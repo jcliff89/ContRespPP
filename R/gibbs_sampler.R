@@ -64,9 +64,9 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, precision.a, 
       immediate. = TRUE
     )
     output <- gibbs.sampler.posterior(
-      X, Y, n.seen, beta.mean, beta.precision,
+      X, Y, beta.mean, beta.precision,
       precision.a, precision.b, b.sim, b.burnin,
-      prob, factor.no.2way, colnames.pick
+      phi.0, prob, factor.no.2way, colnames.pick
     )
   } else {
     output <- gibbs.sampler.predictive(
