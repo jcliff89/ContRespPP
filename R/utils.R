@@ -10,6 +10,18 @@ print.ContRespPP <- function(x, ...) {
   invisible(x)
 }
 
+#' Summary method for ContRespPP class
+#'
+#' @param x A list of class ContRespPP
+#' @param ... Other arguments passed to \code{summary}
+#'
+#' @export
+summary.ContRespPP <- function(x, ...) {
+  # Define printing method for results
+  print(summary(x$posterior))
+  invisible(x)
+}
+
 parameter.data <- function(i, Y, X, full.design) {
   # This function subsets data based on parameter / new reponses
   full.data.set <- cbind(Y, X)
