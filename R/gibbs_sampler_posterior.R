@@ -9,8 +9,6 @@
 #' @param X Design matrix for the test (matrix of indicator functions defining
 #'   which model parameters are active in each test event).
 #' @param Y A vector of the responses from the test.
-#' @param n.seen Number of test events already observed (i.e., the number of rows
-#'   of the design matrix, X, that have been observed).
 #' @param beta.mean Mean vector of the multivariate normal distribution
 #'   (or the mean of each of the priors on the model parameters), ordered
 #'   the same as the columns of the design matrix, X. It also serves as
@@ -23,6 +21,13 @@
 #' @param b.sim Number of conditional posterior draws used in analysis
 #'   for each non-conditional draw.
 #' @param b.burnin Number of burn-in samples for the conditional posterior.
+#' @param phi.0 Threshold value the parameter of interest (BMM) must obtain
+#'   (i.e., BBM > \code{phi.0}).
+#' @param theta.t Certainty threshold for the conditional posterior probability of the
+#'   parameter of interest (the Bayesian mission mean, "BMM") obtaining \code{phi.0}
+#'   (i.e., BMM > \code{phi.0}) that the conditional posterior probability must obtain
+#'   (the certainty threshold for conditional P(BMM > \code{phi.0}) ) must obtain for the
+#'   question of interest to be evaluated as successfully passing the test.
 #' @param prob Matrix or dataframe of the "likelihood of encountering" (or probability of seeing a
 #'   factor level); it is a two column matrix (or dataframe), where the first column identifies the
 #'   factor numerically and the second column defines the probability of seeing each
@@ -40,8 +45,8 @@
 #'   Printing the result object will display the predicted probability result.
 #' @importFrom stats aggregate rgamma rmultinom rnorm
 #' @export
-gibbs.sampler.posterior <- function(X, Y, n.seen, beta.mean, beta.precision, precision.a, precision.b,
-                                    b.sim, b.burnin, prob, factor.no.2way = NA, colnames.pick = NA) {
+gibbs.sampler.posterior <- function(X, Y, beta.mean, beta.precision, precision.a, precision.b,
+                                    b.sim, b.burnin, phi.0, prob, factor.no.2way = NA, colnames.pick = NA) {
 
   # Convert non-matrix inputs to matrix for remainder of function to run smoothly
   if(any(class(X) == "data.frame")){ X <- as.matrix(X) }
@@ -56,12 +61,12 @@ gibbs.sampler.posterior <- function(X, Y, n.seen, beta.mean, beta.precision, pre
   # ERROR: Numeric inputs expected
   if(! is.numeric(X)) { stop("X must be a numeric type.") }
   if(! is.numeric(Y)) { stop("Y must be a numeric type.") }
-  if(! is.numeric(n.seen)) { stop("n.seen must be a numeric type.") }
   if(! is.numeric(beta.mean)) { stop("beta.mean must be a numeric type.") }
   if(! is.numeric(precision.a)) { stop("precision.a must be a numeric type.") }
   if(! is.numeric(precision.b)) { stop("precision.b must be a numeric type.") }
   if(! is.numeric(b.sim)) { stop("b.sim must be a numeric type.") }
   if(! is.numeric(b.burnin)) { stop("b.burnin must be a numeric type.") }
+  if(! is.numeric(phi.0)) { stop("phi.0 must be a numeric type.") }
   if(! is.numeric(prob)) { stop("prob must be a numeric type.") }
 
   # ERROR: Design matrix should be same size as number of priors
@@ -92,12 +97,6 @@ gibbs.sampler.posterior <- function(X, Y, n.seen, beta.mean, beta.precision, pre
 
   # ERROR: Design matrix should have intercept
   if (! (all(X[,1] == 1))) { stop("Model must have an intercept, where the first column of the design matrix contains all 1 values; not all values in the first column of the design matrix are 1") }
-
-  # ERROR: n.seen should be less than size of design matrix X
-  if(n.seen > nrow(X)) { stop("n.seen value must be less than or equal to the number of rows available in the design matrix X") }
-
-  # ERROR: n.seen should be less than number of test responses Y
-  if(n.seen > length(Y)) { stop("n.seen value must be less than or equal to the number of rows available in the response vector Y") }
 
   # ERROR: gamma prior on tau parameters must be positive
   if(! (precision.a > 0)) { stop("Gamma parameters must be greater than 0 (precision.a is not)") }
@@ -138,8 +137,6 @@ gibbs.sampler.posterior <- function(X, Y, n.seen, beta.mean, beta.precision, pre
   prior.tab <- rbind(prior.tab[2:nrow(prior.tab), ], prior.tab[1,])
   colnames(prior.tab) <- c("beta.precision", "beta.mean", "num.obs", "design.matrix.colnum")
 
-  ##### Calculate initial value for tau as mean of gamma distribution
-  tau.int <- precision.a / precision.b
 
   ##### Get column name to assign to results (if not provided, use colnames of design matrix)
   if(is.na(colnames.pick[1])) {colnames.pick <- c(colnames(X), "tau")}
@@ -351,14 +348,17 @@ gibbs.sampler.posterior <- function(X, Y, n.seen, beta.mean, beta.precision, pre
       post[s, 1:num.param] %*% mission.set[, s]
   }
 
+  ###### Calculate the conditional probability of the test being a success at the end of the test; this is, the number
+  # of mission means that were above phi.0 divided by the total number of mission means to get Pr.
+  post.prob <- sum(post.wobi[, (num.param + 2)] > phi.0) / nrow(post.wobi)
+
   if (k == b.sim)
     cat("\n Simulation complete \n")
 
   output <- structure(
     list(
-      pp = NA,
-      posterior = post.wobi,
-      indicator = NA
+      probability = post.prob,
+      posterior = post.wobi
     ),
     class = "ContRespPP"
   )
