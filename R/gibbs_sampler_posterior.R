@@ -343,7 +343,7 @@ gibbs.sampler.posterior <- function(X, Y, beta.mean, beta.precision, precision.a
   # mission set matrix). Save the result in the last column of post.wobi.
   for (s in 1:nrow(post.wobi)) {
     post.wobi[s, (num.param + 2)] <-
-      post[s, 1:num.param] %*% mission.set[, s]
+      post.wobi[s, 1:num.param] %*% mission.set[, s]
   }
 
   ###### Calculate the conditional probability of the test being a success at the end of the test; this is, the number
