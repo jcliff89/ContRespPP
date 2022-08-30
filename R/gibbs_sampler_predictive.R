@@ -238,7 +238,8 @@ gibbs.sampler.predictive <- function(X, Y, n.seen, beta.mean, beta.precision, ra
       # centered at the mean; posterior.results[o-1, (num.param + 1)] is tau, so the std is sqrt(1/posterior.results[o-1, (num.param + 1)])
       full.design[g, 1] <- rnorm(1, dist.mean, sqrt(1/posterior.results[o-1, (num.param + 1)]))
     }
-
+    # Reassign Y to include the newly imputed Y values that have not been observed.
+    Y <- full.design[,1]
 
 
     ##### Subset data based on parameters as discussed in the function section of this code.
