@@ -18,8 +18,8 @@
 #' @param beta.precision Precisions of the multivariate normal distribution
 #'   (precision of each of the priors on the model parameters), corresponding
 #'   to the beta.mean values.
-#' @param precision.a Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.
-#' @param precision.b Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.
+#' @param rate Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.
+#' @param shape Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.
 #' @param n.sim Number of non-conditional posterior draws (i.e., number of
 #'   draws that will be returned to the user from the function after burn-in draws for the
 #'   non-conditional draws are removed).
@@ -51,7 +51,7 @@
 #'   Printing the result object will display the predicted probability result.
 #' @importFrom stats aggregate rgamma rmultinom rnorm
 #' @export
-gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, precision.a, precision.b,
+gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, rate, shape,
                           n.sim, y.burnin, b.sim, b.burnin,
                           phi.0, theta.t, prob, factor.no.2way = NA, colnames.pick = NA) {
 
@@ -68,12 +68,12 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, precision.a, 
     )
     output <- gibbs.sampler.posterior(
       X, Y, beta.mean, beta.precision,
-      precision.a, precision.b, b.sim, b.burnin,
+      rate, shape, b.sim, b.burnin,
       phi.0, prob, factor.no.2way, colnames.pick
     )
   } else {
     output <- gibbs.sampler.predictive(
-      X, Y, n.seen, beta.mean, beta.precision, precision.a, precision.b,
+      X, Y, n.seen, beta.mean, beta.precision, rate, shape,
       n.sim, y.burnin, b.sim, b.burnin,
       phi.0, theta.t, prob, factor.no.2way, colnames.pick
     )
