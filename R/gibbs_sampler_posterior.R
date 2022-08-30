@@ -57,6 +57,7 @@ gibbs.sampler.posterior <- function(X, Y, beta.mean, beta.precision, precision.a
   if(! is.numeric(X)) { stop("X must be a numeric type.") }
   if(! is.numeric(Y)) { stop("Y must be a numeric type.") }
   if(! is.numeric(beta.mean)) { stop("beta.mean must be a numeric type.") }
+  if(! is.numeric(beta.precision)) { stop("beta.precision must be a numeric type.") }
   if(! is.numeric(precision.a)) { stop("precision.a must be a numeric type.") }
   if(! is.numeric(precision.b)) { stop("precision.b must be a numeric type.") }
   if(! is.numeric(b.sim)) { stop("b.sim must be a numeric type.") }

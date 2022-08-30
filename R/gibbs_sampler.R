@@ -55,6 +55,9 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, precision.a, 
                           n.sim, y.burnin, b.sim, b.burnin,
                           phi.0, theta.t, prob, factor.no.2way = NA, colnames.pick = NA) {
 
+  # Check X is not NULL
+  if(is.null(X) | is.na(X)) { stop("X must not be NULL or NA.") }
+
   ###### Run predictive function or posterior function, depending on n.seen vs design matrix
 
   if(n.seen == nrow(X)) {

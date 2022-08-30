@@ -70,6 +70,7 @@ gibbs.sampler.predictive <- function(X, Y, n.seen, beta.mean, beta.precision, pr
   if(! is.numeric(Y)) { stop("Y must be a numeric type.") }
   if(! is.numeric(n.seen)) { stop("n.seen must be a numeric type.") }
   if(! is.numeric(beta.mean)) { stop("beta.mean must be a numeric type.") }
+  if(! is.numeric(beta.precision)) { stop("beta.mean must be a numeric type.") }
   if(! is.numeric(precision.a)) { stop("precision.a must be a numeric type.") }
   if(! is.numeric(precision.b)) { stop("precision.b must be a numeric type.") }
   if(! is.numeric(n.sim)) { stop("n.sim must be a numeric type.") }
