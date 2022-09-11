@@ -9,8 +9,8 @@ gibbs.sampler.posterior(
   Y,
   beta.mean,
   beta.precision,
-  precision.a,
-  precision.b,
+  rate,
+  shape,
   b.sim,
   b.burnin,
   phi.0,
@@ -34,9 +34,9 @@ the initialization for the model parameters.}
 (precision of each of the priors on the model parameters), corresponding
 to the beta.mean values.}
 
-\item{precision.a}{Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.}
+\item{rate}{Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.}
 
-\item{precision.b}{Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.}
+\item{shape}{Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.}
 
 \item{b.sim}{Number of conditional posterior draws used in analysis
 for each non-conditional draw.}

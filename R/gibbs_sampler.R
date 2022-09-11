@@ -58,25 +58,52 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, rate, shape,
   # Check X is not NULL
   if(is.null(X) | is.na(X)) { stop("X must not be NULL or NA.") }
 
+  ###### Check if rjags is installed for choosing which sampler to run, inform user if not
+  rjags_installed <- system.file(package = "rjags") != "" & system.file(package = "coda") != ""
+  if(! rjags_installed) {
+    warning(
+      "rjags is not installed, so base R gibbs sampler will be used.
+       Note that computational efficiency of this method is lower, so sampling could take a long time.",
+      immediate. = TRUE
+    )
+  }
+
   ###### Run predictive function or posterior function, depending on n.seen vs design matrix
 
   if(n.seen == nrow(X)) {
+    # Calculating posterior
     warning(
       "Since n.seen is the same as the number of rows of the design matrix,
        note you are calculating the posterior probability and not the predictive probability.",
       immediate. = TRUE
     )
-    output <- gibbs.sampler.posterior(
-      X, Y, beta.mean, beta.precision,
-      rate, shape, b.sim, b.burnin,
-      phi.0, prob, factor.no.2way, colnames.pick
-    )
+    if(rjags_installed) {
+      output <- gibbs.sampler.posterior.rjags(
+        X, Y, beta.mean, beta.precision,
+        rate, shape, b.sim, b.burnin,
+        phi.0, prob, factor.no.2way, colnames.pick
+      )
+    } else {
+      output <- gibbs.sampler.posterior.rjags(
+        X, Y, beta.mean, beta.precision,
+        rate, shape, b.sim, b.burnin,
+        phi.0, prob, factor.no.2way, colnames.pick
+      )
+    }
   } else {
-    output <- gibbs.sampler.predictive(
-      X, Y, n.seen, beta.mean, beta.precision, rate, shape,
-      n.sim, y.burnin, b.sim, b.burnin,
-      phi.0, theta.t, prob, factor.no.2way, colnames.pick
-    )
+    if(rjags_installed) {
+      output <- gibbs.sampler.predictive.rjags(
+        X, Y, n.seen, beta.mean, beta.precision, rate, shape,
+        n.sim, y.burnin, b.sim, b.burnin,
+        phi.0, theta.t, prob, factor.no.2way, colnames.pick
+      )
+    } else {
+      output <- gibbs.sampler.predictive(
+        X, Y, n.seen, beta.mean, beta.precision, rate, shape,
+        n.sim, y.burnin, b.sim, b.burnin,
+        phi.0, theta.t, prob, factor.no.2way, colnames.pick
+      )
+    }
   }
 
   return(output)

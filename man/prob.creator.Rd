@@ -12,14 +12,14 @@ prob.creator(
 )
 }
 \arguments{
-\item{num.factors}{Number of factors in the model (e.g., factor \eqn{\alpha} with
+\item{num.factors}{Number of factors in the model (e.g., factor \eqn{\alpha_i} with
 levels i=1,2 is 1 factor). Input for \code{num.factors} should be a single number.}
 
-\item{num.factor.levels}{Number of levels for each factor (e.g., factor \eqn{\alpha}
+\item{num.factor.levels}{Number of levels for each factor (e.g., factor \eqn{\alpha_i}
 with i=1,2 has 2 levels). Input for \code{num.factor.levels} may be a vector, a matrix, or a dataframe.}
 
 \item{likelihood.encountering}{The probability of seeing each level of each factor (e.g., if the factor levels for
-\eqn{\alpha} are equally likely, then the probabilities would be c(1/2, 1/2)).
+\eqn{\alpha_i} are equally likely, then the probabilities would be c(1/2, 1/2)).
 The probabilities for each factor should sum to one. Input for \code{likelihood.encountering} may be a vector, a matrix,
 or a dataframe.}
 

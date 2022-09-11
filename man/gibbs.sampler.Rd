@@ -10,8 +10,8 @@ gibbs.sampler(
   n.seen,
   beta.mean,
   beta.precision,
-  precision.a,
-  precision.b,
+  rate,
+  shape,
   n.sim,
   y.burnin,
   b.sim,
@@ -41,9 +41,9 @@ the initialization for the model parameters.}
 (precision of each of the priors on the model parameters), corresponding
 to the beta.mean values.}
 
-\item{precision.a}{Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.}
+\item{rate}{Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.}
 
-\item{precision.b}{Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.}
+\item{shape}{Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.}
 
 \item{n.sim}{Number of non-conditional posterior draws (i.e., number of
 draws that will be returned to the user from the function after burn-in draws for the
