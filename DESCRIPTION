@@ -43,6 +43,8 @@ RoxygenNote: 7.1.1
 Imports:
     stats
 Suggests: 
+    rjags,
+    coda,
     knitr,
     devtools,
     rmarkdown,
