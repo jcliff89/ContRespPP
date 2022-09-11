@@ -1,6 +1,6 @@
 #' Continuous Response Predictive Probability.
 #'
-#' \code{gibbs.sampler.predictive.jags} runs the estimation of the continuous response ANOVA predictive probability using rjags.
+#' \code{gibbs.sampler} runs the estimation of the continuous response ANOVA posterior probability.
 #'
 #' The ANOVA model includes main effects and two-way interactions. Priors
 #' on model parameters are assumed to be independent of each other; beta is
