@@ -18,14 +18,14 @@ print.ContRespPP <- function(x, ...) {
 
 #' Summary method for ContRespPP class
 #'
-#' @param x A list of class ContRespPP
+#' @param object A list of class ContRespPP
 #' @param ... Other arguments passed to \code{summary}
 #'
 #' @export
-summary.ContRespPP <- function(x, ...) {
+summary.ContRespPP <- function(object, ...) {
   # Define printing method for results
-  print(summary(x$posterior))
-  invisible(x)
+  print(summary(object$posterior))
+  invisible(object)
 }
 
 parameter.data <- function(i, Y, X, full.design) {

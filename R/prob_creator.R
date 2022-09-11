@@ -7,12 +7,12 @@
 #' on model parameters are assumed to be independent of each other; beta is
 #' then defined as the set of model parameters, which is multivariate normal.
 #'
-#' @param num.factors Number of factors in the model (e.g., factor \eqn{\alpha}\ifelse{html}{\out{<sub>i</sub> }} with
+#' @param num.factors Number of factors in the model (e.g., factor \eqn{\alpha_i} with
 #'   levels i=1,2 is 1 factor). Input for `num.factors` should be a single number.
-#' @param num.factor.levels Number of levels for each factor (e.g., factor \eqn{\alpha}\ifelse{html}{\out{<sub>i</sub> }}
+#' @param num.factor.levels Number of levels for each factor (e.g., factor \eqn{\alpha_i}
 #'   with i=1,2 has 2 levels). Input for `num.factor.levels` may be a vector, a matrix, or a dataframe.
 #' @param likelihood.encountering The probability of seeing each level of each factor (e.g., if the factor levels for
-#'   \eqn{\alpha}\ifelse{html}{\out{<sub>i</sub> }} are equally likely, then the probabilities would be c(1/2, 1/2)).
+#'   \eqn{\alpha_i} are equally likely, then the probabilities would be c(1/2, 1/2)).
 #'   The probabilities for each factor should sum to one. Input for `likelihood.encountering` may be a vector, a matrix,
 #'   or a dataframe.
 #' @param print.result Displays final probability matrix.
