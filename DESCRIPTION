@@ -1,6 +1,6 @@
 Package: ContRespPP
 Title: Predictive Probability for a Continuous Response with an ANOVA Structure
-Version: 0.4.0
+Version: 0.4.1
 Authors@R: c(
     person(given = "Victoria",
            family = "Sieck",
