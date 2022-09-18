@@ -1,10 +1,7 @@
 #' Continuous Response Predictive Probability.
 #'
-#' \code{gibbs.sampler.predictive} runs the estimation of the continuous response ANOVA predictive probability.
-#'
-#' The ANOVA model includes main effects and two-way interactions. Priors
-#' on model parameters are assumed to be independent of each other; beta is
-#' then defined as the set of model parameters, which is multivariate normal.
+#' \code{gibbs.sampler.predictive} does the predictive ContRespPP method using base R functions, which
+#' drastically increases the computational time required to obtain predictive draws.
 #'
 #' @param X Design matrix for the test (matrix of indicator functions defining
 #'   which model parameters are active in each test event).

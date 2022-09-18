@@ -1,10 +1,9 @@
 #' Continuous Response Posterior Probability.
 #'
-#' \code{gibbs.sampler} runs the estimation of the continuous response ANOVA posterior probability.
-#'
-#' The ANOVA model includes main effects and two-way interactions. Priors
-#' on model parameters are assumed to be independent of each other; beta is
-#' then defined as the set of model parameters, which is multivariate normal.
+#' \code{gibbs.sampler.posterior.rjags} obtains the ContRespPP method for obtaining the posterior (i.e., all
+#' observations have been seen, and this reverts to a traditional Bayesian analysis) using rjags to
+#' generate samples instead of base R functions, drastically decreasing the computational time required
+#' to obtain predictive draws.
 #'
 #' @param X Design matrix for the test (matrix of indicator functions defining
 #'   which model parameters are active in each test event).
