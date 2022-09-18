@@ -40,8 +40,7 @@
 #'   that are not incorporated in the two way interactions for the model.
 #' @param colnames.pick Optional vector of model parameter names in the same order
 #'   as in the design matrix to label the returned dataframe columns.
-#' @param reproducible Optional selection if want to ensure reproducibility of results. This
-#'   option is not recommended, unless exact reproducibility is absolutely required.
+#' @param seed Optional selection which will create a reproducible result from the function.
 #' @return Returns a list with three elements:
 #'   \describe{
 #'     \item{\code{pp}}{The predicted probability of the test ending in a successful evaluation of the question of interest}
@@ -54,7 +53,7 @@
 gibbs.sampler.predictive.rjags <- function(X, Y, n.seen, beta.mean, beta.precision, shape, rate,
                                            n.sim, y.burnin, b.sim, b.burnin,
                                            phi.0, theta.t, prob, factor.no.2way = NA, colnames.pick = NA,
-                                           reproducible = FALSE) {
+                                           seed = NA) {
 
   # Convert non-matrix inputs to matrix for remainder of function to run smoothly
   if(any(class(X) == "data.frame")){ X <- as.matrix(X) }
@@ -80,6 +79,7 @@ gibbs.sampler.predictive.rjags <- function(X, Y, n.seen, beta.mean, beta.precisi
   if(! is.numeric(phi.0)) { stop("phi.0 must be a numeric type.") }
   if(! is.numeric(theta.t)) { stop("theta.t must be a numeric type.") }
   if(! is.numeric(prob)) { stop("prob must be a numeric type.") }
+  if(! is.na(seed) & ! is.numeric(seed)) { stop("seed must be a numeric type.") }
 
   # ERROR: Design matrix should be same size as number of priors
   if( ncol(X) != length(beta.mean) ) {
@@ -214,11 +214,9 @@ gibbs.sampler.predictive.rjags <- function(X, Y, n.seen, beta.mean, beta.precisi
     ##### Generate the remaining data yet to be seen (n.all - n.seen left to observe) and put them into the full design
     # (i.e., augment the full design with the generated observations)
 
-    # Set seed for genearting future observations for reproduceability
-    if(reproducible == "TRUE"){
-      set.seed(o)
-    }else{
-      set.seed(NULL)
+    # Set seed for generating future observations for reproduceability
+    if(is.na(seed) == FALSE){
+      set.seed(seed + o - 2)
     }
 
     for(g in (n.seen + 1):nrow(full.design)) {
@@ -321,8 +319,8 @@ gibbs.sampler.predictive.rjags <- function(X, Y, n.seen, beta.mean, beta.precisi
 
     parameters <- c( "beta", "tau" )
     data <- list( "X"=X, "n"=nrow(X), "Y"=Y, "beta.mean"=c(beta.mean), "beta.precision"=c(beta.precision), "m"=length(beta.mean), "shape"=shape, "rate"=rate)
-    if(reproducible == "TRUE"){
-      inits <- list( ".RNG.name"= "base::Wichmann-Hill", ".RNG.seed"= o, beta=c(beta.mean), tau=tau.int )
+    if(is.na(seed) == FALSE){
+      inits <- list( ".RNG.name"= "base::Wichmann-Hill", ".RNG.seed"= (seed + o - 2), beta=c(beta.mean), tau=tau.int )
     } else{
       inits <- list( beta=c(beta.mean), tau=tau.int )
     }

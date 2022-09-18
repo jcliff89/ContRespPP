@@ -30,8 +30,7 @@
 #'   that are not incorporated in the two way interactions for the model.
 #' @param colnames.pick Optional vector of model parameter names in the same order
 #'   as in the design matrix to label the returned dataframe columns.
-#' @param reproducible Optional selection if want to ensure reproducibility of results. This
-#'   option is not recommended, unless exact reproducibility is absolutely required.
+#' @param seed Optional selection which will create a reproducible result from the function.
 #' @return Returns a list with three elements:
 #'   \describe{
 #'     \item{\code{pp}}{This value will be NA since this function only calculates the posterior}
@@ -43,7 +42,7 @@
 #' @export
 gibbs.sampler.posterior.rjags <- function(X, Y, beta.mean, beta.precision, shape, rate,
                                           b.sim, b.burnin, phi.0, prob, factor.no.2way = NA, colnames.pick = NA,
-                                          reproducible = FALSE) {
+                                          seed = NA) {
 
   # Convert non-matrix inputs to matrix for remainder of function to run smoothly
   if(any(class(X) == "data.frame")){ X <- as.matrix(X) }
@@ -65,6 +64,7 @@ gibbs.sampler.posterior.rjags <- function(X, Y, beta.mean, beta.precision, shape
   if(! is.numeric(b.burnin)) { stop("b.burnin must be a numeric type.") }
   if(! is.numeric(phi.0)) { stop("phi.0 must be a numeric type.") }
   if(! is.numeric(prob)) { stop("prob must be a numeric type.") }
+  if(! is.na(seed) & ! is.numeric(seed)) { stop("seed must be a numeric type.") }
 
   # ERROR: Design matrix should be same size as number of priors
   if( ncol(X) != length(beta.mean) ) {
@@ -135,6 +135,10 @@ gibbs.sampler.posterior.rjags <- function(X, Y, beta.mean, beta.precision, shape
   # as defined by the likelihood of encountering the parameter. Once combined, this essentially will create a new design matrix
   # of possible scenarios we could see in the field and evlaute one conditional posterior draw against one of the rows in the mission sets.
 
+  if(is.na(seed) == FALSE){
+    set.seed(seed)
+  }
+
   num.missions <- b.sim - b.burnin
   num.maineffects <- length(prob[, 1]) - length(unique(prob[, 1]))
 
@@ -192,8 +196,8 @@ gibbs.sampler.posterior.rjags <- function(X, Y, beta.mean, beta.precision, shape
 
   parameters <- c( "beta", "tau" )
   data <- list( "X"=X, "n"=nrow(X), "Y"=Y, "beta.mean"=c(beta.mean), "beta.precision"=c(beta.precision), "m"=length(beta.mean), "shape"=shape, "rate"=rate)
-  if(reproducible == "TRUE"){
-    inits <- list( ".RNG.name"= "base::Wichmann-Hill", ".RNG.seed"= 512, beta=c(beta.mean), tau=tau.int )
+  if(is.na(seed) == FALSE){
+    inits <- list( ".RNG.name"= "base::Wichmann-Hill", ".RNG.seed"= seed, beta=c(beta.mean), tau=tau.int )
   } else{
     inits <- list( beta=c(beta.mean), tau=tau.int )
   }
