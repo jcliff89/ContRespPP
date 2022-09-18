@@ -56,7 +56,7 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, shape, rate,
                           phi.0, theta.t, prob, factor.no.2way = NA, colnames.pick = NA) {
 
   # Check X is not NULL
-  if(is.null(X) | is.na(X)) { stop("X must not be NULL or NA.") }
+  if(all(is.null(X)) | all(is.na(X))) { stop("X must not be NULL or NA.") }
 
   ###### Check if rjags is installed for choosing which sampler to run, inform user if not
   rjags_installed <- system.file(package = "rjags") != "" & system.file(package = "coda") != ""
