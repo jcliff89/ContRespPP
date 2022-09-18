@@ -63,7 +63,8 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, shape, rate,
   if(! rjags_installed) {
     warning(
       "rjags is not installed, so base R gibbs sampler will be used.
-        Note that computational efficiency of this method is lower, so sampling could take a long time.",
+        Note that computational efficiency of this method is lower, so sampling could take a long time.
+        If you would like to install rjags, it requires an external package JAGS, which can be downloaded from https://sourceforge.net/projects/mcmc-jags/",
       immediate. = TRUE
     )
   }
