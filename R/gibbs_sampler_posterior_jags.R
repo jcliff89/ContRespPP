@@ -16,8 +16,8 @@
 #' @param beta.precision Precisions of the multivariate normal distribution
 #'   (precision of each of the priors on the model parameters), corresponding
 #'   to the beta.mean values.
-#' @param rate Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.
-#' @param shape Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.
+#' @param shape Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.
+#' @param rate Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.
 #' @param b.sim Number of conditional posterior draws used in analysis
 #'   for each non-conditional draw.
 #' @param b.burnin Number of burn-in samples for the conditional posterior.
@@ -42,7 +42,7 @@
 #'   Printing the result object will display the predicted probability result.
 #' @importFrom stats aggregate rgamma rmultinom rnorm
 #' @export
-gibbs.sampler.posterior.rjags <- function(X, Y, beta.mean, beta.precision, rate, shape,
+gibbs.sampler.posterior.rjags <- function(X, Y, beta.mean, beta.precision, shape, rate,
                                           b.sim, b.burnin, phi.0, prob, factor.no.2way = NA, colnames.pick = NA,
                                           reproducible = FALSE) {
 
@@ -60,8 +60,8 @@ gibbs.sampler.posterior.rjags <- function(X, Y, beta.mean, beta.precision, rate,
   if(! is.numeric(X)) { stop("X must be a numeric type.") }
   if(! is.numeric(Y)) { stop("Y must be a numeric type.") }
   if(! is.numeric(beta.mean)) { stop("beta.mean must be a numeric type.") }
-  if(! is.numeric(rate)) { stop("rate must be a numeric type.") }
   if(! is.numeric(shape)) { stop("shape must be a numeric type.") }
+  if(! is.numeric(rate)) { stop("rate must be a numeric type.") }
   if(! is.numeric(b.sim)) { stop("b.sim must be a numeric type.") }
   if(! is.numeric(b.burnin)) { stop("b.burnin must be a numeric type.") }
   if(! is.numeric(phi.0)) { stop("phi.0 must be a numeric type.") }
@@ -97,8 +97,8 @@ gibbs.sampler.posterior.rjags <- function(X, Y, beta.mean, beta.precision, rate,
   if (! (all(X[,1] == 1))) { stop("Model must have an intercept, where the first column of the design matrix contains all 1 values; not all values in the first column of the design matrix are 1") }
 
   # ERROR: gamma prior on tau parameters must be positive
-  if(! (rate > 0)) { stop("Gamma parameters must be greater than 0 (rate is not)") }
   if(! (shape > 0)) { stop("Gamma parameters must be greater than 0 (shape is not)") }
+  if(! (rate > 0)) { stop("Gamma parameters must be greater than 0 (rate is not)") }
 
 
   ##### Warnings to user when function will run alright but something is strange
@@ -184,7 +184,7 @@ gibbs.sampler.posterior.rjags <- function(X, Y, beta.mean, beta.precision, rate,
 
 
   #### Calculate initial value for tau as mean of gamma distribution
-  tau.int <- rate / shape
+  tau.int <- shape / rate
 
 
   ##############################################################################################################
@@ -192,7 +192,7 @@ gibbs.sampler.posterior.rjags <- function(X, Y, beta.mean, beta.precision, rate,
   ##############################################################################################################
 
   parameters <- c( "beta", "tau" )
-  data <- list( "X"=X, "n"=nrow(X), "Y"=Y, "beta.mean"=c(beta.mean), "beta.precision"=c(beta.precision), "m"=length(beta.mean), "rate"=rate, "shape"=shape)
+  data <- list( "X"=X, "n"=nrow(X), "Y"=Y, "beta.mean"=c(beta.mean), "beta.precision"=c(beta.precision), "m"=length(beta.mean), "shape"=shape, "rate"=rate)
   if(reproducible == "TRUE"){
     inits <- list( ".RNG.name"= "base::Wichmann-Hill", ".RNG.seed"= 512, beta=c(beta.mean), tau=tau.int )
   } else{
@@ -207,7 +207,7 @@ gibbs.sampler.posterior.rjags <- function(X, Y, beta.mean, beta.precision, rate,
         		}
 
         	## Define Priors
-        		tau ~ dgamma(rate, shape)
+        		tau ~ dgamma(shape, rate)
         		for( j in 1:m){
           		beta[j]~dnorm(beta.mean[j],beta.precision[j])
         		}

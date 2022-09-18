@@ -16,8 +16,8 @@
 #' @param beta.precision Precisions of the multivariate normal distribution
 #'   (precision of each of the priors on the model parameters), corresponding
 #'   to the beta.mean values.
-#' @param rate Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.
-#' @param shape Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.
+#' @param shape Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.
+#' @param rate Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.
 #' @param b.sim Number of conditional posterior draws used in analysis
 #'   for each non-conditional draw.
 #' @param b.burnin Number of burn-in samples for the conditional posterior.
@@ -40,7 +40,7 @@
 #'   Printing the result object will display the predicted probability result.
 #' @importFrom stats aggregate rgamma rmultinom rnorm
 #' @export
-gibbs.sampler.posterior <- function(X, Y, beta.mean, beta.precision, rate, shape,
+gibbs.sampler.posterior <- function(X, Y, beta.mean, beta.precision, shape, rate,
                                     b.sim, b.burnin, phi.0, prob, factor.no.2way = NA, colnames.pick = NA) {
 
   # Convert non-matrix inputs to matrix for remainder of function to run smoothly
@@ -58,8 +58,8 @@ gibbs.sampler.posterior <- function(X, Y, beta.mean, beta.precision, rate, shape
   if(! is.numeric(Y)) { stop("Y must be a numeric type.") }
   if(! is.numeric(beta.mean)) { stop("beta.mean must be a numeric type.") }
   if(! is.numeric(beta.precision)) { stop("beta.precision must be a numeric type.") }
-  if(! is.numeric(rate)) { stop("rate must be a numeric type.") }
   if(! is.numeric(shape)) { stop("shape must be a numeric type.") }
+  if(! is.numeric(rate)) { stop("rate must be a numeric type.") }
   if(! is.numeric(b.sim)) { stop("b.sim must be a numeric type.") }
   if(! is.numeric(b.burnin)) { stop("b.burnin must be a numeric type.") }
   if(! is.numeric(phi.0)) { stop("phi.0 must be a numeric type.") }
@@ -95,8 +95,8 @@ gibbs.sampler.posterior <- function(X, Y, beta.mean, beta.precision, rate, shape
   if (! (all(X[,1] == 1))) { stop("Model must have an intercept, where the first column of the design matrix contains all 1 values; not all values in the first column of the design matrix are 1") }
 
   # ERROR: gamma prior on tau parameters must be positive
-  if(! (rate > 0)) { stop("Gamma parameters must be greater than 0 (rate is not)") }
   if(! (shape > 0)) { stop("Gamma parameters must be greater than 0 (shape is not)") }
+  if(! (rate > 0)) { stop("Gamma parameters must be greater than 0 (rate is not)") }
 
 
   ##### Warnings to user when function will run alright but something is strange
@@ -219,7 +219,7 @@ gibbs.sampler.posterior <- function(X, Y, beta.mean, beta.precision, rate, shape
     )
 
   #### Calculate initial value for tau as mean of gamma distribution
-  tau.int <- rate / shape
+  tau.int <- shape / rate
 
   ##### Store initial values in the first row
   post[1,] <- c(beta.mean, tau.int, NA_real_)
@@ -313,12 +313,12 @@ gibbs.sampler.posterior <- function(X, Y, beta.mean, beta.precision, rate, shape
 
     #Sample parameter | data and other parameters (k or k-1)
     #a for parameter | data and other parameters
-    a.val <- rate + n.all / 2
+    a.val <- shape + n.all / 2
 
     #b for parameter | data and other parameters
     tau.sum <-
       sum((full.design[, 1] - full.design[, 2:ncol(full.design)] %*% param.it) ^ 2)
-    b.val <- shape + 0.5 * tau.sum
+    b.val <- rate + 0.5 * tau.sum
 
     #Sample parameter | data and other parameters
     post[k, (num.param + 1)] <- rgamma(1, a.val, b.val)

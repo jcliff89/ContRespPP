@@ -18,8 +18,8 @@
 #' @param beta.precision Precisions of the multivariate normal distribution
 #'   (precision of each of the priors on the model parameters), corresponding
 #'   to the beta.mean values.
-#' @param rate Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.
-#' @param shape Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.
+#' @param shape Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.
+#' @param rate Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.
 #' @param n.sim Number of non-conditional posterior draws (i.e., number of
 #'   draws that will be returned to the user from the function after burn-in draws for the
 #'   non-conditional draws are removed).
@@ -53,7 +53,7 @@
 #'   Printing the result object will display the predicted probability result.
 #' @importFrom stats aggregate rgamma rmultinom rnorm
 #' @export
-gibbs.sampler.predictive.rjags <- function(X, Y, n.seen, beta.mean, beta.precision, rate, shape,
+gibbs.sampler.predictive.rjags <- function(X, Y, n.seen, beta.mean, beta.precision, shape, rate,
                                            n.sim, y.burnin, b.sim, b.burnin,
                                            phi.0, theta.t, prob, factor.no.2way = NA, colnames.pick = NA,
                                            reproducible = FALSE) {
@@ -73,8 +73,8 @@ gibbs.sampler.predictive.rjags <- function(X, Y, n.seen, beta.mean, beta.precisi
   if(! is.numeric(Y)) { stop("Y must be a numeric type.") }
   if(! is.numeric(n.seen)) { stop("n.seen must be a numeric type.") }
   if(! is.numeric(beta.mean)) { stop("beta.mean must be a numeric type.") }
-  if(! is.numeric(rate)) { stop("rate must be a numeric type.") }
   if(! is.numeric(shape)) { stop("shape must be a numeric type.") }
+  if(! is.numeric(rate)) { stop("rate must be a numeric type.") }
   if(! is.numeric(n.sim)) { stop("n.sim must be a numeric type.") }
   if(! is.numeric(y.burnin)) { stop("y.burnin must be a numeric type.") }
   if(! is.numeric(b.sim)) { stop("b.sim must be a numeric type.") }
@@ -122,8 +122,8 @@ gibbs.sampler.predictive.rjags <- function(X, Y, n.seen, beta.mean, beta.precisi
   if(n.seen > length(Y)) { stop("n.seen value must be less than or equal to the number of rows available in the response vector Y") }
 
   # ERROR: gamma prior on tau parameters must be positive
-  if(! (rate > 0)) { stop("Gamma parameters must be greater than 0 (rate is not)") }
   if(! (shape > 0)) { stop("Gamma parameters must be greater than 0 (shape is not)") }
+  if(! (rate > 0)) { stop("Gamma parameters must be greater than 0 (rate is not)") }
 
   # ERROR: Posterior not predictive probability
   if(n.seen == nrow(X)) {
@@ -187,7 +187,7 @@ gibbs.sampler.predictive.rjags <- function(X, Y, n.seen, beta.mean, beta.precisi
   posterior.results <- matrix(NA_real_, nrow=n.sim, ncol=(num.param + 1), dimnames=list(NULL, colnames.pick))
 
   ##### Calculate initial value for tau as mean of gamma distribution
-  tau.int <- rate / shape
+  tau.int <- shape / rate
 
   ##### Store the initial values for the model parameters in the matrix that was just created
   posterior.results[1, ] <- c(beta.mean, tau.int)
@@ -322,7 +322,7 @@ gibbs.sampler.predictive.rjags <- function(X, Y, n.seen, beta.mean, beta.precisi
     ############################################################################################################################
 
     parameters <- c( "beta", "tau" )
-    data <- list( "X"=X, "n"=nrow(X), "Y"=Y, "beta.mean"=c(beta.mean), "beta.precision"=c(beta.precision), "m"=length(beta.mean), "rate"=rate, "shape"=shape)
+    data <- list( "X"=X, "n"=nrow(X), "Y"=Y, "beta.mean"=c(beta.mean), "beta.precision"=c(beta.precision), "m"=length(beta.mean), "shape"=shape, "rate"=rate)
     if(reproducible == "TRUE"){
       inits <- list( ".RNG.name"= "base::Wichmann-Hill", ".RNG.seed"= o, beta=c(beta.mean), tau=tau.int )
     } else{
@@ -338,7 +338,7 @@ gibbs.sampler.predictive.rjags <- function(X, Y, n.seen, beta.mean, beta.precisi
         		}
 
         	## Define Priors
-        		tau ~ dgamma(rate, shape)
+        		tau ~ dgamma(shape, rate)
         		for( j in 1:m){
           		beta[j]~dnorm(beta.mean[j],beta.precision[j])
         		}
