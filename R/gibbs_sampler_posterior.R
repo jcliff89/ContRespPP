@@ -29,6 +29,7 @@
 #'   that are not incorporated in the two way interactions for the model.
 #' @param colnames.pick Optional vector of model parameter names in the same order
 #'   as in the design matrix to label the returned dataframe columns.
+#' @param seed Optional selection which will create a reproducible result from the function.
 #' @return Returns a list with three elements:
 #'   \describe{
 #'     \item{\code{pp}}{This value will be NA since this function only calculates the posterior}
@@ -39,7 +40,8 @@
 #' @importFrom stats aggregate rgamma rmultinom rnorm
 #' @export
 gibbs.sampler.posterior <- function(X, Y, beta.mean, beta.precision, shape, rate,
-                                    b.sim, b.burnin, phi.0, prob, factor.no.2way = NA, colnames.pick = NA) {
+                                    b.sim, b.burnin, phi.0, prob, factor.no.2way = NA, colnames.pick = NA,
+                                    seed = NA) {
 
   # Convert non-matrix inputs to matrix for remainder of function to run smoothly
   if(any(class(X) == "data.frame")){ X <- as.matrix(X) }
@@ -62,6 +64,7 @@ gibbs.sampler.posterior <- function(X, Y, beta.mean, beta.precision, shape, rate
   if(! is.numeric(b.burnin)) { stop("b.burnin must be a numeric type.") }
   if(! is.numeric(phi.0)) { stop("phi.0 must be a numeric type.") }
   if(! is.numeric(prob)) { stop("prob must be a numeric type.") }
+  if(! is.na(seed) & ! is.numeric(seed)) { stop("seed must be a numeric type.") }
 
   # ERROR: Design matrix should be same size as number of priors
   if( ncol(X) != length(beta.mean) ) {
@@ -131,9 +134,13 @@ gibbs.sampler.posterior <- function(X, Y, beta.mean, beta.precision, shape, rate
   prior.tab <- rbind(prior.tab[2:nrow(prior.tab), ], prior.tab[1,])
   colnames(prior.tab) <- c("beta.precision", "beta.mean", "num.obs", "design.matrix.colnum")
 
-
   ##### Get column name to assign to results (if not provided, use colnames of design matrix)
   if(is.na(colnames.pick[1])) {colnames.pick <- c(colnames(X), "tau")}
+
+  ##### Set seed for function if provided
+  if(is.na(seed) == FALSE){
+    set.seed(seed)
+  }
 
   ############################################################################################################
   #############################################   SUBSET DATA    #############################################

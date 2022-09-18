@@ -39,6 +39,7 @@
 #'   that are not incorporated in the two way interactions for the model.
 #' @param colnames.pick Optional vector of model parameter names in the same order
 #'   as in the design matrix to label the returned dataframe columns.
+#' @param seed Optional selection which will create a reproducible result from the function.
 #' @return Returns a list with three elements:
 #'   \describe{
 #'     \item{\code{pp}}{The predicted probability of the test ending in a successful evaluation of the question of interest}
@@ -50,7 +51,8 @@
 #' @export
 gibbs.sampler.predictive <- function(X, Y, n.seen, beta.mean, beta.precision, shape, rate,
                                      n.sim, y.burnin, b.sim, b.burnin,
-                                     phi.0, theta.t, prob, factor.no.2way = NA, colnames.pick = NA) {
+                                     phi.0, theta.t, prob, factor.no.2way = NA, colnames.pick = NA,
+                                     seed = NA) {
 
   # Convert non-matrix inputs to matrix for remainder of function to run smoothly
   if(any(class(X) == "data.frame")){ X <- as.matrix(X) }
@@ -77,6 +79,7 @@ gibbs.sampler.predictive <- function(X, Y, n.seen, beta.mean, beta.precision, sh
   if(! is.numeric(phi.0)) { stop("phi.0 must be a numeric type.") }
   if(! is.numeric(theta.t)) { stop("theta.t must be a numeric type.") }
   if(! is.numeric(prob)) { stop("prob must be a numeric type.") }
+  if(! is.na(seed) & ! is.numeric(seed)) { stop("seed must be a numeric type.") }
 
   # ERROR: Design matrix should be same size as number of priors
   if( ncol(X) != length(beta.mean) ) {
@@ -187,7 +190,6 @@ gibbs.sampler.predictive <- function(X, Y, n.seen, beta.mean, beta.precision, sh
   prior.tab <- rbind(prior.tab[2:nrow(prior.tab), ], prior.tab[1,])
   colnames(prior.tab) <- c("beta.precision", "beta.mean", "num.obs", "design.matrix.colnum")
 
-
   ##### Create "success.ind" to keep track of indicators of a test being successful at the end of the test or not
   success.ind <- matrix(NA_real_, nrow=(n.sim - 1), ncol=1)
 
@@ -207,7 +209,10 @@ gibbs.sampler.predictive <- function(X, Y, n.seen, beta.mean, beta.precision, sh
   # this "NA"s out the rows after the last "n.seen" observation
   full.design[(n.seen + 1):nrow(full.design), 1] <- NA_real_
 
-
+  ##### Set seed for function if provided
+  if(is.na(seed) == FALSE){
+    set.seed(seed)
+  }
 
 
   ############################################################################################################
