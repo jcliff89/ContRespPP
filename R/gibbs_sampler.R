@@ -42,6 +42,7 @@
 #'   that are not incorposhaped in the two way interactions for the model.
 #' @param colnames.pick Optional vector of model parameter names in the same order
 #'   as in the design matrix to label the returned dataframe columns.
+#' @param seed Optional selection which will create a reproducible result from the function.
 #' @return Returns a list with three elements:
 #'   \describe{
 #'     \item{\code{pp}}{The predicted probability of the test ending in a successful evaluation of the question of interest}
@@ -53,7 +54,8 @@
 #' @export
 gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, shape, rate,
                           n.sim, y.burnin, b.sim, b.burnin,
-                          phi.0, theta.t, prob, factor.no.2way = NA, colnames.pick = NA) {
+                          phi.0, theta.t, prob, factor.no.2way = NA, colnames.pick = NA,
+                          seed = NA) {
 
   # Check X is not NULL
   if(all(is.null(X)) | all(is.na(X))) { stop("X must not be NULL or NA.") }
@@ -82,13 +84,15 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, shape, rate,
       output <- gibbs.sampler.posterior.rjags(
         X, Y, beta.mean, beta.precision,
         shape, rate, b.sim, b.burnin,
-        phi.0, prob, factor.no.2way, colnames.pick
+        phi.0, prob, factor.no.2way, colnames.pick,
+        seed
       )
     } else {
       output <- gibbs.sampler.posterior.rjags(
         X, Y, beta.mean, beta.precision,
         shape, rate, b.sim, b.burnin,
-        phi.0, prob, factor.no.2way, colnames.pick
+        phi.0, prob, factor.no.2way, colnames.pick,
+        seed
       )
     }
   } else {
@@ -96,13 +100,15 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, shape, rate,
       output <- gibbs.sampler.predictive.rjags(
         X, Y, n.seen, beta.mean, beta.precision, shape, rate,
         n.sim, y.burnin, b.sim, b.burnin,
-        phi.0, theta.t, prob, factor.no.2way, colnames.pick
+        phi.0, theta.t, prob, factor.no.2way, colnames.pick,
+        seed
       )
     } else {
       output <- gibbs.sampler.predictive(
         X, Y, n.seen, beta.mean, beta.precision, shape, rate,
         n.sim, y.burnin, b.sim, b.burnin,
-        phi.0, theta.t, prob, factor.no.2way, colnames.pick
+        phi.0, theta.t, prob, factor.no.2way, colnames.pick,
+        seed
       )
     }
   }
