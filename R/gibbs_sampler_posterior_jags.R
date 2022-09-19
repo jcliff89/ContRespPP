@@ -224,7 +224,6 @@ gibbs.sampler.posterior.rjags <- function(X, Y, beta.mean, beta.precision, shape
   post.wbi <- cbind(post.wbi, NA)
 
 
-
   ####################################################################################################################################
   ####################################################################################################################################
   #############################################								           #############################################
@@ -244,6 +243,8 @@ gibbs.sampler.posterior.rjags <- function(X, Y, beta.mean, beta.precision, shape
     post.wobi[s, (num.param + 2)] <-
       post.wobi[s, 1:num.param] %*% mission.set[, s]
   }
+
+  colnames(post.wobi) <- c(colnames.pick, "m")
 
   ###### Calculate the conditional probability of the test being a success at the end of the test; this is, the number
   # of mission means that were above phi.0 divided by the total number of mission means to get Pr.
