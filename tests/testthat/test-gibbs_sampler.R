@@ -31,7 +31,7 @@ y.burnin<-10
 
 factor.no.2way<-c(3)
 
-# Run predictive results to compare outputs in tests
+# Run predictive results (base R)
 predictive_results <- gibbs.sampler.predictive(
   X = X,
   Y = Y,
@@ -52,7 +52,7 @@ predictive_results <- gibbs.sampler.predictive(
   seed = 512
 )
 
-# Run posterior results to compare outputs
+# Run posterior results (base R)
 posterior_results <- gibbs.sampler.posterior(
   X = X[1:75,],
   Y = Y[1:75],
@@ -69,12 +69,52 @@ posterior_results <- gibbs.sampler.posterior(
   seed = 512
 )
 
+# Run predictive results (rjags)
+predictive_results_jags <- gibbs.sampler.predictive.rjags(
+  X = X,
+  Y = Y,
+  n.seen = n.seen,
+  beta.mean = beta.mean,
+  beta.precision = beta.precision,
+  shape = shape,
+  rate = rate,
+  n.sim = n.sim,
+  y.burnin = y.burnin,
+  b.sim = b.sim,
+  b.burnin = b.burnin,
+  phi.0 = phi.0,
+  theta.t = theta.t,
+  prob = prob,
+  factor.no.2way = factor.no.2way,
+  colnames.pick = colnames.pick,
+  seed = 512
+)
 
-# Runs tests on resulting objects elements versus the internal results objects
-testthat::test_that("predictive pp works", {
+# Run posterior results (rjags)
+posterior_results_rjags <- gibbs.sampler.posterior.rjags(
+  X = X[1:75,],
+  Y = Y[1:75],
+  beta.mean = beta.mean,
+  beta.precision = beta.precision,
+  shape = shape,
+  rate = rate,
+  phi.0 = phi.0,
+  b.sim = b.sim,
+  b.burnin = b.burnin,
+  prob = prob,
+  factor.no.2way = factor.no.2way,
+  colnames.pick = colnames.pick,
+  seed = 512
+)
+
+
+### Runs tests on resulting objects elements
+
+# Predictive (base R)
+testthat::test_that("base R predictive pp works", {
   expect_equal(predictive_results$pp, 0.7)
 })
-test_that("predictive posterior works", {
+test_that("base R predictive posterior works", {
   expect_equal(
     predictive_results$posterior[10,],
     data.frame(
@@ -96,10 +136,15 @@ test_that("predictive posterior works", {
     )
   )
 })
-test_that("predictive indicator works", {
+test_that("base R predictive indicator works", {
   expect_equal(predictive_results$indicator, c(1, 1, 1, 0, 1, 1, 1, 0, 0, 1))
 })
-test_that("predictive posterior works", {
+
+# Posterior (base R)
+testthat::test_that("base R posterior probability works", {
+  expect_equal(posterior_results$probability, 0.8)
+})
+test_that("base R predictive posterior works", {
   expect_equal(
     posterior_results$posterior[10,],
     c(
@@ -122,8 +167,65 @@ test_that("predictive posterior works", {
   )
 })
 
+# Predictive (rjags)
+testthat::test_that("rjags predictive pp works", {
+  expect_equal(predictive_results_jags$pp, 0.7)
+})
+test_that("rjags predictive posterior works", {
+  expect_equal(
+    predictive_results_jags$posterior[10,],
+    data.frame(
+      eta = 351.12446,
+      alpha = 62.189768,
+      beta = 41.251491,
+      omega2 = -11.5724895,
+      omega3 = -17.2152391,
+      theta = 83.784724,
+      gamma = 31.757688,
+      alphabeta = -34.809998,
+      alphatheta = 42.67921,
+      alphagamma = 48.548013,
+      betatheta = 57.428093,
+      betagamma = 16.6852106,
+      thetagamma = 12.135702,
+      tau = 0.00042180727,
+      row.names = as.integer(10)
+    )
+  )
+})
+test_that("rjags predictive indicator works", {
+  expect_equal(predictive_results_jags$indicator, c(1, 0, 1, 1, 1, 1, 1, 0, 0, 1))
+})
+
+# Posterior (rjags)
+testthat::test_that("rjags posterior probability works", {
+  expect_equal(posterior_results_rjags$probability, 0.7)
+})
+test_that("rjags predictive posterior works", {
+  expect_equal(
+    posterior_results_rjags$posterior[10,],
+    c(
+      eta = 376.0680,
+      alpha = 72.4334729407908640,
+      beta = 5.6437250088257507,
+      omega2 = -18.9518715921377172,
+      omega3 = -13.0444823033842709,
+      theta = 62.9324083169688535,
+      gamma = 25.3786141418328413,
+      alphabeta = -25.0701648123980192,
+      alphatheta = 48.6332235669522959,
+      alphagamma = 28.6441252117864664,
+      betatheta = 71.03357877,
+      betagamma = 37.55655942,
+      thetagamma = 25.13565349,
+      tau = 0.00042312,
+      m = 372.01813077
+    )
+  )
+})
+
 
 # Clean up environment after tests
 rm(full.data, X, Y, n.seen, beta.mean, beta.precision, rate, shape,
    n.sim, y.burnin, b.sim, b.burnin, phi.0, theta.t, prob, factor.no.2way, colnames.pick,
-   posterior_results, predictive_results)
+   posterior_results, predictive_results, posterior_results_rjags, predictive_results_jags)
