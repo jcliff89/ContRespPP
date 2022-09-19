@@ -29,7 +29,7 @@ summary.ContRespPP <- function(object, ...) {
 }
 
 parameter.data <- function(i, Y, X, full.design) {
-  # This function subsets data based on parameter / new reponses
+  # This function subsets data based on parameter / new responses
   full.data.set <- cbind(Y, X)
   # only keep data that involves the parameter (i)
   subset.data <- full.data.set[(full.data.set[, i] == 1), ]
