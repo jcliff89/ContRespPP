@@ -198,8 +198,6 @@ colnames.pick <- c(
 Now that the arguments are all specified, we are ready to run the gibbs.sampler.
 
 ```{r gibbsSampler, eval = FALSE}
-set.seed(512) # for reproducibility
-
 results <- gibbs.sampler(
   X = X, 
   Y = Y, 
