@@ -11,8 +11,8 @@ phi.0 <- 400
 
 beta.mean <- matrix(c(400, 50, 50, -25, -50, 100, 100, rep(0, 6)),ncol=1)
 beta.precision <- matrix(c(1/10000, 1/10000, 1/10000, 1/2500, 1/2500, 1/10000, 1/10000, rep(1/10000,6)), ncol=1)
-precision.a <- 0.0001
-precision.b <- 0.0001
+shape <- 0.0001
+rate <- 0.0001
 
 prob<-matrix(c(1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 5, 1/2, 1/2, 4/9, 5/9, 1/3, 1/3, 1/3, 1/2, 1/2, 1/2, 1/2), ncol=2, dimnames=list(NULL, c("factor", "probability")))
 
@@ -32,15 +32,14 @@ y.burnin<-10
 factor.no.2way<-c(3)
 
 # Run predictive results to compare outputs in tests
-set.seed(512)
-predictive_results <- gibbs.sampler(
+predictive_results <- gibbs.sampler.predictive(
   X = X,
   Y = Y,
   n.seen = n.seen,
   beta.mean = beta.mean,
   beta.precision = beta.precision,
-  precision.a = precision.a,
-  precision.b = precision.b,
+  shape = shape,
+  rate = rate,
   n.sim = n.sim,
   y.burnin = y.burnin,
   b.sim = b.sim,
@@ -49,24 +48,25 @@ predictive_results <- gibbs.sampler(
   theta.t = theta.t,
   prob = prob,
   factor.no.2way = factor.no.2way,
-  colnames.pick = colnames.pick
+  colnames.pick = colnames.pick,
+  seed = 512
 )
 
 # Run posterior results to compare outputs
-set.seed(512)
 posterior_results <- gibbs.sampler.posterior(
   X = X[1:75,],
   Y = Y[1:75],
   beta.mean = beta.mean,
   beta.precision = beta.precision,
-  precision.a = precision.a,
-  precision.b = precision.b,
+  shape = shape,
+  rate = rate,
   phi.0 = phi.0,
   b.sim = b.sim,
   b.burnin = b.burnin,
   prob = prob,
   factor.no.2way = factor.no.2way,
-  colnames.pick = colnames.pick
+  colnames.pick = colnames.pick,
+  seed = 512
 )
 
 
@@ -78,20 +78,20 @@ test_that("predictive posterior works", {
   expect_equal(
     predictive_results$posterior[10,],
     data.frame(
-      eta = 349.11155514645,
-      alpha = 39.69934317663,
-      beta = 26.35416334985,
-      omega2 = -8.96002391443,
-      omega3 = 7.04971687008,
-      theta = 100.87461920453,
-      gamma = 42.17204449009,
-      alphabeta = -10.84151893116,
-      alphatheta = 37.85817304383,
-      alphagamma = 31.35655526784,
-      betatheta = 29.272223,
-      betagamma = 36.625298,
-      thetagamma = 9.5689962,
-      tau = 0.00040760768,
+      eta = 347.54094,
+      alpha = 49.919477,
+      beta = 24.046309,
+      omega2 = -12.109324,
+      omega3 = 6.0590025,
+      theta = 105.425247,
+      gamma = 42.983682,
+      alphabeta = -15.8259474,
+      alphatheta = 44.147483,
+      alphagamma = 17.2665694,
+      betatheta = 37.598518,
+      betagamma = 44.983309,
+      thetagamma = 7.0175283,
+      tau = 0.00041002082,
       row.names = as.integer(10)
     )
   )
@@ -113,17 +113,17 @@ test_that("predictive posterior works", {
       alphabeta = -25.0701648123980192,
       alphatheta = 48.6332235669522959,
       alphagamma = 28.6441252117864664,
-      betatheta = 71.0335788,
-      betagamma = 37.5565594,
-      thetagamma = 25.1356535,
-      tau = 0.0004231,
-      m = 345.4537665
+      betatheta = 71.03357877,
+      betagamma = 37.55655942,
+      thetagamma = 25.13565349,
+      tau = 0.00042312,
+      m = 372.01813077
     )
   )
 })
 
 
 # Clean up environment after tests
-rm(full.data, X, Y, n.seen, beta.mean, beta.precision, precision.a, precision.b,
+rm(full.data, X, Y, n.seen, beta.mean, beta.precision, rate, shape,
    n.sim, y.burnin, b.sim, b.burnin, phi.0, theta.t, prob, factor.no.2way, colnames.pick,
    posterior_results, predictive_results)
