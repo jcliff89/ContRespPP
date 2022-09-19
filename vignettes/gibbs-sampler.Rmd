@@ -112,8 +112,8 @@ beta.precision <- matrix(
 # could also be vector: beta.precision <- c(1/10000, 1/10000, 1/10000, 1/2500, 1/2500, 1/10000, 1/10000, rep(1/10000, 6))
 
 # Precision for tau
-precision.a <- 0.0001
-precision.b <- 0.0001
+shape <- 0.0001
+rate <- 0.0001
 ```
   
   
@@ -206,8 +206,8 @@ results <- gibbs.sampler(
   n.seen = n.seen, 
   beta.mean = beta.mean, 
   beta.precision = beta.precision,
-  precision.a = precision.a, 
-  precision.b = precision.b,
+  shape = shape, 
+  rate = rate,
   n.sim = n.sim, 
   y.burnin = y.burnin, 
   b.sim = b.sim, 
@@ -216,7 +216,8 @@ results <- gibbs.sampler(
   theta.t = theta.t, 
   prob = prob, 
   factor.no.2way = factor.no.2way, 
-  colnames.pick = colnames.pick
+  colnames.pick = colnames.pick,
+  seed = 512
 )
 ```
 
@@ -234,7 +235,7 @@ cat("Simulation Complete")
 ```{r readResults, include=FALSE}
 # Internal data read in quietly
 # (not run on each build due to long runtime)
-results <- ContRespPP:::exResult 
+results <- ContRespPP:::exResults[[1]] # this is the predictive rjags example
 ```
   
 Calling the results object prints the summarized predictive probability result, which can also be accessed using `pp` in the results list. Predictive probability captures the probability that the test will end in a success--i.e., in this example, the predictive probability that the experiment will end in stating that the mean number of miles traveled is greater than `phi.0`. Ultimately, `pp` helps the user determine if enough information has been obtained about the question of interest to stop testing early. If `pp` is high enough (e.g., greater than 0.8, 0.9, 0.95 depending on the question), then testing can stop and the unseen observations are not needed. Enough information is known and the question can be evaluated successfully. If `pp` is low enough (e.g., 0.05, 0.1), then testing can stop and the unseen observations are not needed. Enough information is known and the question can be evaluated unsuccessfully. If `pp` is moderate (e.g., 0.5, 0.6), more testing is needed before conclusions can be made. In Sieck and Christensen (2021), if `pp` was greater than 0.95 (or less than 0.05) the test was ended early and the question was evaluated as met (or not met); otherwise, the experiment continued. See Sieck and Christensen (2021) for more details on interpreting results using this method.  
