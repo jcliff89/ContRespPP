@@ -10,8 +10,8 @@ gibbs.sampler.predictive(
   n.seen,
   beta.mean,
   beta.precision,
-  rate,
   shape,
+  rate,
   n.sim,
   y.burnin,
   b.sim,
@@ -20,7 +20,8 @@ gibbs.sampler.predictive(
   theta.t,
   prob,
   factor.no.2way = NA,
-  colnames.pick = NA
+  colnames.pick = NA,
+  seed = NA
 )
 }
 \arguments{
@@ -41,9 +42,9 @@ the initialization for the model parameters.}
 (precision of each of the priors on the model parameters), corresponding
 to the beta.mean values.}
 
-\item{rate}{Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.}
+\item{shape}{Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.}
 
-\item{shape}{Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.}
+\item{rate}{Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.}
 
 \item{n.sim}{Number of non-conditional posterior draws (i.e., number of
 draws that will be returned to the user from the function after burn-in draws for the
@@ -75,6 +76,8 @@ that are not incorporated in the two way interactions for the model.}
 
 \item{colnames.pick}{Optional vector of model parameter names in the same order
 as in the design matrix to label the returned dataframe columns.}
+
+\item{seed}{Optional selection which will create a reproducible result from the function.}
 }
 \value{
 Returns a list with three elements:
@@ -86,10 +89,6 @@ Returns a list with three elements:
 Printing the result object will display the predicted probability result.
 }
 \description{
-\code{gibbs.sampler.predictive} runs the estimation of the continuous response ANOVA predictive probability.
-}
-\details{
-The ANOVA model includes main effects and two-way interactions. Priors
-on model parameters are assumed to be independent of each other; beta is
-then defined as the set of model parameters, which is multivariate normal.
+\code{gibbs.sampler.predictive} does the predictive ContRespPP method using base R functions, which
+drastically increases the computational time required to obtain predictive draws.
 }

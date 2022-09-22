@@ -9,14 +9,15 @@ gibbs.sampler.posterior(
   Y,
   beta.mean,
   beta.precision,
-  rate,
   shape,
+  rate,
   b.sim,
   b.burnin,
   phi.0,
   prob,
   factor.no.2way = NA,
-  colnames.pick = NA
+  colnames.pick = NA,
+  seed = NA
 )
 }
 \arguments{
@@ -34,9 +35,9 @@ the initialization for the model parameters.}
 (precision of each of the priors on the model parameters), corresponding
 to the beta.mean values.}
 
-\item{rate}{Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.}
+\item{shape}{Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.}
 
-\item{shape}{Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.}
+\item{rate}{Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.}
 
 \item{b.sim}{Number of conditional posterior draws used in analysis
 for each non-conditional draw.}
@@ -56,6 +57,8 @@ that are not incorporated in the two way interactions for the model.}
 
 \item{colnames.pick}{Optional vector of model parameter names in the same order
 as in the design matrix to label the returned dataframe columns.}
+
+\item{seed}{Optional selection which will create a reproducible result from the function.}
 }
 \value{
 Returns a list with three elements:
@@ -67,10 +70,7 @@ Returns a list with three elements:
 Printing the result object will display the predicted probability result.
 }
 \description{
-\code{gibbs.sampler} runs the estimation of the continuous response ANOVA posterior probability.
-}
-\details{
-The ANOVA model includes main effects and two-way interactions. Priors
-on model parameters are assumed to be independent of each other; beta is
-then defined as the set of model parameters, which is multivariate normal.
+\code{gibbs.sampler.posterior} obtains the ContRespPP method for obtaining the posterior (i.e., all
+observations have been seen, and this reverts to a traditional Bayesian analysis) using base R
+functions, drastically increasing the computational time required to obtain predictive draws.
 }

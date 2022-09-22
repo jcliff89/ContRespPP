@@ -10,8 +10,8 @@ gibbs.sampler.predictive.rjags(
   n.seen,
   beta.mean,
   beta.precision,
-  rate,
   shape,
+  rate,
   n.sim,
   y.burnin,
   b.sim,
@@ -21,7 +21,7 @@ gibbs.sampler.predictive.rjags(
   prob,
   factor.no.2way = NA,
   colnames.pick = NA,
-  reproducible = FALSE
+  seed = NA
 )
 }
 \arguments{
@@ -42,9 +42,9 @@ the initialization for the model parameters.}
 (precision of each of the priors on the model parameters), corresponding
 to the beta.mean values.}
 
-\item{rate}{Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.}
+\item{shape}{Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.}
 
-\item{shape}{Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.}
+\item{rate}{Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.}
 
 \item{n.sim}{Number of non-conditional posterior draws (i.e., number of
 draws that will be returned to the user from the function after burn-in draws for the
@@ -77,8 +77,7 @@ that are not incorporated in the two way interactions for the model.}
 \item{colnames.pick}{Optional vector of model parameter names in the same order
 as in the design matrix to label the returned dataframe columns.}
 
-\item{reproducible}{Optional selection if want to ensure reproducibility of results. This
-option is not recommended, unless exact reproducibility is absolutely required.}
+\item{seed}{Optional selection which will create a reproducible result from the function.}
 }
 \value{
 Returns a list with three elements:
@@ -90,10 +89,7 @@ Returns a list with three elements:
 Printing the result object will display the predicted probability result.
 }
 \description{
-\code{gibbs.sampler.predictive.jags} runs the estimation of the continuous response ANOVA predictive probability using rjags.
-}
-\details{
-The ANOVA model includes main effects and two-way interactions. Priors
-on model parameters are assumed to be independent of each other; beta is
-then defined as the set of model parameters, which is multivariate normal.
+\code{gibbs.sampler.predictive.jags} does the predictive ContRespPP method using rjags to generate
+samples instead of base R functions, drastically decreasing the computational time required to obtain
+predictive draws.
 }

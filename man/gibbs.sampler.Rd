@@ -10,8 +10,8 @@ gibbs.sampler(
   n.seen,
   beta.mean,
   beta.precision,
-  rate,
   shape,
+  rate,
   n.sim,
   y.burnin,
   b.sim,
@@ -20,7 +20,8 @@ gibbs.sampler(
   theta.t,
   prob,
   factor.no.2way = NA,
-  colnames.pick = NA
+  colnames.pick = NA,
+  seed = NA
 )
 }
 \arguments{
@@ -41,9 +42,9 @@ the initialization for the model parameters.}
 (precision of each of the priors on the model parameters), corresponding
 to the beta.mean values.}
 
-\item{rate}{Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.}
+\item{shape}{Hyperparameter alpha for gamma prior on the precision of the ANOVA model, tau.}
 
-\item{shape}{Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.}
+\item{rate}{Hyperparameter beta for gamma prior on the precision of the ANOVA model, tau.}
 
 \item{n.sim}{Number of non-conditional posterior draws (i.e., number of
 draws that will be returned to the user from the function after burn-in draws for the
@@ -71,10 +72,12 @@ factor numerically and the second column defines the probability of seeing each
 factor level.}
 
 \item{factor.no.2way}{Optional vector of model parameters (as defined by prob)
-that are not incorporated in the two way interactions for the model.}
+that are not incorposhaped in the two way interactions for the model.}
 
 \item{colnames.pick}{Optional vector of model parameter names in the same order
 as in the design matrix to label the returned dataframe columns.}
+
+\item{seed}{Optional selection which will create a reproducible result from the function.}
 }
 \value{
 Returns a list with three elements:
