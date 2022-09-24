@@ -112,10 +112,10 @@ posterior_results_rjags <- gibbs.sampler.posterior.rjags(
 
 # Predictive (base R)
 testthat::test_that("base R predictive pp works", {
-  expect_equal(predictive_results$pp, 0.7)
+  testthat::expect_equal(predictive_results$pp, 0.7)
 })
-test_that("base R predictive posterior works", {
-  expect_equal(
+testthat::test_that("base R predictive posterior works", {
+  testthat::expect_equal(
     predictive_results$posterior[10,],
     data.frame(
       eta = 347.54094,
@@ -136,16 +136,16 @@ test_that("base R predictive posterior works", {
     )
   )
 })
-test_that("base R predictive indicator works", {
-  expect_equal(predictive_results$indicator, c(1, 1, 1, 0, 1, 1, 1, 0, 0, 1))
+testthat::test_that("base R predictive indicator works", {
+  testthat::expect_equal(predictive_results$indicator, c(1, 1, 1, 0, 1, 1, 1, 0, 0, 1))
 })
 
 # Posterior (base R)
 testthat::test_that("base R posterior probability works", {
   expect_equal(posterior_results$probability, 0.8)
 })
-test_that("base R predictive posterior works", {
-  expect_equal(
+testthat::test_that("base R predictive posterior works", {
+  testthat::expect_equal(
     posterior_results$posterior[10,],
     c(
       eta = 372.0181307702488311,
@@ -167,62 +167,66 @@ test_that("base R predictive posterior works", {
   )
 })
 
-# Predictive (rjags)
-testthat::test_that("rjags predictive pp works", {
-  expect_equal(predictive_results_jags$pp, 0.7)
-})
-test_that("rjags predictive posterior works", {
-  expect_equal(
-    predictive_results_jags$posterior[10,],
-    data.frame(
-      eta = 351.12446,
-      alpha = 62.189768,
-      beta = 41.251491,
-      omega2 = -11.5724895,
-      omega3 = -17.2152391,
-      theta = 83.784724,
-      gamma = 31.757688,
-      alphabeta = -34.809998,
-      alphatheta = 42.67921,
-      alphagamma = 48.548013,
-      betatheta = 57.428093,
-      betagamma = 16.6852106,
-      thetagamma = 12.135702,
-      tau = 0.00042180727,
-      row.names = as.integer(10)
-    )
-  )
-})
-test_that("rjags predictive indicator works", {
-  expect_equal(predictive_results_jags$indicator, c(1, 0, 1, 1, 1, 1, 1, 0, 0, 1))
-})
+## Only run rjags test on Mac OS since JAGS RNG has differing results for other OS
 
-# Posterior (rjags)
-testthat::test_that("rjags posterior probability works", {
-  expect_equal(posterior_results_rjags$probability, 0.7)
-})
-test_that("rjags predictive posterior works", {
-  expect_equal(
-    posterior_results_rjags$posterior[10,],
-    c(
-      eta = 376.06796183672054,
-      alpha = 41.443110830794026,
-      beta = -32.467186112679855,
-      omega2 = 25.40386013084774,
-      omega3 = -13.109862581334514,
-      theta = 56.598592757067088,
-      gamma = 28.991130508340987,
-      alphabeta = 16.138461933670587,
-      alphatheta = 46.697133566645284,
-      alphagamma = 26.833356466019538,
-      betatheta = 115.942451444620644,
-      betagamma = 28.209858257950600,
-      thetagamma = 14.022252094204337,
-      tau = 0.00028087935,
-      m = 376.06796183672
+if(Sys.info()['sysname'] == "Darwin") {
+  # Predictive (rjags)
+  testthat::test_that("rjags predictive pp works", {
+    testthat::expect_equal(predictive_results_jags$pp, 0.7)
+  })
+  testthat::test_that("rjags predictive posterior works", {
+    testthat::expect_equal(
+      predictive_results_jags$posterior[10,],
+      data.frame(
+        eta = 351.12446,
+        alpha = 62.189768,
+        beta = 41.251491,
+        omega2 = -11.5724895,
+        omega3 = -17.2152391,
+        theta = 83.784724,
+        gamma = 31.757688,
+        alphabeta = -34.809998,
+        alphatheta = 42.67921,
+        alphagamma = 48.548013,
+        betatheta = 57.428093,
+        betagamma = 16.6852106,
+        thetagamma = 12.135702,
+        tau = 0.00042180727,
+        row.names = as.integer(10)
+      )
     )
-  )
-})
+  })
+  testthat::test_that("rjags predictive indicator works", {
+    testthat::expect_equal(predictive_results_jags$indicator, c(1, 0, 1, 1, 1, 1, 1, 0, 0, 1))
+  })
+
+  # Posterior (rjags)
+  testthat::test_that("rjags posterior probability works", {
+    testthat::expect_equal(posterior_results_rjags$probability, 0.7)
+  })
+  testthat::test_that("rjags posterior works", {
+    testthat::expect_equal(
+      posterior_results_rjags$posterior[10,],
+      c(
+        eta = 376.06796183672054,
+        alpha = 41.443110830794026,
+        beta = -32.467186112679855,
+        omega2 = 25.40386013084774,
+        omega3 = -13.109862581334514,
+        theta = 56.598592757067088,
+        gamma = 28.991130508340987,
+        alphabeta = 16.138461933670587,
+        alphatheta = 46.697133566645284,
+        alphagamma = 26.833356466019538,
+        betatheta = 115.942451444620644,
+        betagamma = 28.209858257950600,
+        thetagamma = 14.022252094204337,
+        tau = 0.00028087935,
+        m = 376.06796183672
+      )
+    )
+  })
+}
 
 
 # Clean up environment after tests
