@@ -1,3 +1,9 @@
+## Resubmission
+This is a resubmission. In this version I have:
+
+  * Changed the description to not start with 'This package'
+
+
 ## Test environments
 * local R installation, R 4.1.0
 * ubuntu 16.04 (on travis-ci), R 4.1.0

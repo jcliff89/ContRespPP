@@ -18,11 +18,11 @@ Authors@R: c(
            email = "ronald@stat.unm.edu",
            comment = c(ORCID = "0000-0002-5303-8139"))
     )
-Description: This package is an implementation of the Bayesian approach to using 
+Description: An implementation of the Bayesian approach to using 
     predictive probability in an ANOVA construct with a continuous normal response, 
     when threshold values must be obtained for the question of interest to be 
     evaluated as successful (Sieck and Christensen (2021) <doi:10.1002/qre.2802>). 
-    In this package, the Bayesian Mission Mean (BMM) is used to evaluate a question 
+    The Bayesian Mission Mean (BMM) is used to evaluate a question 
     of interest (that is, a mean that randomly selects combination of factor levels 
     based on their probability of occurring instead of averaging over the factor 
     levels, as in the grand mean). Under this construct, in contrast to a Gibbs 
