@@ -11,6 +11,9 @@
 
 \item{...}{Other arguments passed to \code{summary}}
 }
+\value{
+Prints a basic summary of posterior distribution from ContRespPP class
+}
 \description{
 Summary method for ContRespPP class
 }

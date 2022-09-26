@@ -11,6 +11,9 @@
 
 \item{...}{Other arguments passed to \code{print}}
 }
+\value{
+Prints the predictive or posterior probability result from ContRespPP class
+}
 \description{
 Print method for ContRespPP class
 }

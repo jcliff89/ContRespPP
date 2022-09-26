@@ -3,6 +3,7 @@
 #' @param x A list of class ContRespPP
 #' @param ... Other arguments passed to \code{print}
 #'
+#' @return Prints the predictive or posterior probability result from ContRespPP class
 #' @export
 print.ContRespPP <- function(x, ...) {
   # Define printing method for predictive prob results
@@ -21,6 +22,7 @@ print.ContRespPP <- function(x, ...) {
 #' @param object A list of class ContRespPP
 #' @param ... Other arguments passed to \code{summary}
 #'
+#' @return Prints a basic summary of posterior distribution from ContRespPP class
 #' @export
 summary.ContRespPP <- function(object, ...) {
   # Define printing method for results
