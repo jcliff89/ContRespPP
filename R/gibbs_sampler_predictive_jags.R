@@ -41,6 +41,7 @@
 #' @param colnames.pick Optional vector of model parameter names in the same order
 #'   as in the design matrix to label the returned dataframe columns.
 #' @param seed Optional selection which will create a reproducible result from the function.
+#' @param verbose Allows suppression of sampler progress printing in console.
 #' @return Returns a list with three elements:
 #'   \describe{
 #'     \item{\code{pp}}{The predicted probability of the test ending in a successful evaluation of the question of interest}
@@ -53,7 +54,7 @@
 gibbs.sampler.predictive.rjags <- function(X, Y, n.seen, beta.mean, beta.precision, shape, rate,
                                            n.sim, y.burnin, b.sim, b.burnin,
                                            phi.0, theta.t, prob, factor.no.2way = NA, colnames.pick = NA,
-                                           seed = NA) {
+                                           seed = NA, verbose = TRUE) {
 
   # Convert non-matrix inputs to matrix for remainder of function to run smoothly
   if(any(class(X) == "data.frame")){ X <- as.matrix(X) }
@@ -204,12 +205,13 @@ gibbs.sampler.predictive.rjags <- function(X, Y, n.seen, beta.mean, beta.precisi
   for(o in 2:n.sim) {
 
     # Progress printing
-    if(o - 1 <= y.burnin) {
-      cat("\r", paste("Running Burn-in", o - 1, "of", y.burnin))
-    } else {
-      cat("\r", paste("Running Simulation", o - y.burnin - 1, "of", n.sim - y.burnin - 1))
+    if(verbose) {
+      if(o - 1 <= y.burnin) {
+        cat("\r", paste("Running Burn-in", o - 1, "of", y.burnin))
+      } else {
+        cat("\r", paste("Running Simulation", o - y.burnin - 1, "of", n.sim - y.burnin - 1))
+      }
     }
-
 
     ##### Generate the remaining data yet to be seen (n.all - n.seen left to observe) and put them into the full design
     # (i.e., augment the full design with the generated observations)
@@ -377,7 +379,7 @@ gibbs.sampler.predictive.rjags <- function(X, Y, n.seen, beta.mean, beta.precisi
     ##### Add draw results to final table
     posterior.results[o, 1:(num.param + 1)] <- post.wobi[1, 1:(num.param + 1)]
 
-    if(o == n.sim) cat("\n Simulation complete \n")
+    if(verbose & o == n.sim) cat("\n Simulation complete \n")
 
 
   }

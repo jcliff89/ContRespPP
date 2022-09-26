@@ -43,6 +43,7 @@
 #' @param colnames.pick Optional vector of model parameter names in the same order
 #'   as in the design matrix to label the returned dataframe columns.
 #' @param seed Optional selection which will create a reproducible result from the function.
+#' @param verbose Allows suppression of sampler progress printing in console.
 #' @return Returns a list with three elements:
 #'   \describe{
 #'     \item{\code{pp}}{The predicted probability of the test ending in a successful evaluation of the question of interest}
@@ -55,7 +56,7 @@
 gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, shape, rate,
                           n.sim, y.burnin, b.sim, b.burnin,
                           phi.0, theta.t, prob, factor.no.2way = NA, colnames.pick = NA,
-                          seed = NA) {
+                          seed = NA, verbose = TRUE) {
 
   # Check X is not NULL
   if(all(is.null(X)) | all(is.na(X))) { stop("X must not be NULL or NA.") }
@@ -85,14 +86,14 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, shape, rate,
         X, Y, beta.mean, beta.precision,
         shape, rate, b.sim, b.burnin,
         phi.0, prob, factor.no.2way, colnames.pick,
-        seed
+        seed, verbose
       )
     } else {
       output <- gibbs.sampler.posterior.rjags(
         X, Y, beta.mean, beta.precision,
         shape, rate, b.sim, b.burnin,
         phi.0, prob, factor.no.2way, colnames.pick,
-        seed
+        seed, verbose
       )
     }
   } else {
@@ -101,14 +102,14 @@ gibbs.sampler <- function(X, Y, n.seen, beta.mean, beta.precision, shape, rate,
         X, Y, n.seen, beta.mean, beta.precision, shape, rate,
         n.sim, y.burnin, b.sim, b.burnin,
         phi.0, theta.t, prob, factor.no.2way, colnames.pick,
-        seed
+        seed, verbose
       )
     } else {
       output <- gibbs.sampler.predictive(
         X, Y, n.seen, beta.mean, beta.precision, shape, rate,
         n.sim, y.burnin, b.sim, b.burnin,
         phi.0, theta.t, prob, factor.no.2way, colnames.pick,
-        seed
+        seed, verbose
       )
     }
   }

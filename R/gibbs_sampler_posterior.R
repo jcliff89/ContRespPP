@@ -30,6 +30,7 @@
 #' @param colnames.pick Optional vector of model parameter names in the same order
 #'   as in the design matrix to label the returned dataframe columns.
 #' @param seed Optional selection which will create a reproducible result from the function.
+#' @param verbose Allows suppression of sampler progress printing in console.
 #' @return Returns a list with three elements:
 #'   \describe{
 #'     \item{\code{pp}}{This value will be NA since this function only calculates the posterior}
@@ -41,7 +42,7 @@
 #' @export
 gibbs.sampler.posterior <- function(X, Y, beta.mean, beta.precision, shape, rate,
                                     b.sim, b.burnin, phi.0, prob, factor.no.2way = NA, colnames.pick = NA,
-                                    seed = NA) {
+                                    seed = NA, verbose = TRUE) {
 
   # Convert non-matrix inputs to matrix for remainder of function to run smoothly
   if(any(class(X) == "data.frame")){ X <- as.matrix(X) }
@@ -236,11 +237,13 @@ gibbs.sampler.posterior <- function(X, Y, beta.mean, beta.precision, shape, rate
 
   for (k in 2:b.sim) {
     # Progress printing
-    if (k <= b.burnin) {
-      cat("\r", paste("Running Burn-in", k, "of", b.burnin))
-    } else {
-      cat("\r",
-          paste("Running Simulation", k - b.burnin, "of", b.sim - b.burnin))
+    if(verbose) {
+      if (k <= b.burnin) {
+        cat("\r", paste("Running Burn-in", k, "of", b.burnin))
+      } else {
+        cat("\r",
+            paste("Running Simulation", k - b.burnin, "of", b.sim - b.burnin))
+      }
     }
 
     ##### We start with the entire previous iteration. As model parameters are updated, they are not only saved in post,
@@ -356,7 +359,7 @@ gibbs.sampler.posterior <- function(X, Y, beta.mean, beta.precision, shape, rate
   # of mission means that were above phi.0 divided by the total number of mission means to get Pr.
   post.prob <- sum(post.wobi[, (num.param + 2)] > phi.0) / nrow(post.wobi)
 
-  if (k == b.sim)
+  if (verbose & k == b.sim)
     cat("\n Simulation complete \n")
 
   output <- structure(

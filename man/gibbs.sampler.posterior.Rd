@@ -17,7 +17,8 @@ gibbs.sampler.posterior(
   prob,
   factor.no.2way = NA,
   colnames.pick = NA,
-  seed = NA
+  seed = NA,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -59,6 +60,8 @@ that are not incorporated in the two way interactions for the model.}
 as in the design matrix to label the returned dataframe columns.}
 
 \item{seed}{Optional selection which will create a reproducible result from the function.}
+
+\item{verbose}{Allows suppression of sampler progress printing in console.}
 }
 \value{
 Returns a list with three elements:
