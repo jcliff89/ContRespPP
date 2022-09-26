@@ -14,7 +14,7 @@ vignette: >
 #  collapse = TRUE,
 #  comment = "#>"
 #)
-options(rmarkdown.html_vignette.check_title = FALSE)
+old <- options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
 This example is derived from Sieck and Christensen (2021). For background information such as the research question, why the priors presented here were selected, the details of mission probabilities, etc, please reference "A framework for improving the efficiency of operational testing through Bayesian adaptive design" (Sieck and Christensen, 2021).
@@ -255,4 +255,8 @@ The vector of test success results for each posterior draw is accessible with `i
   
 ```{r indicatorResults}
 head(results$indicator)
+```
+
+```{r, include=FALSE}
+options(old)
 ```
