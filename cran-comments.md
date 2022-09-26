@@ -1,7 +1,10 @@
 ## Resubmission
-This is a resubmission. In this version I have:
+This is a resubmission based on previous feedback. In this version I have:
 
-  * Changed the description to not start with 'This package'
+  * Omitted "An implementation of" from the beginning of the description text.  
+  * Added \value Rd-tags for ContRespPP S3 print and summary methods.  
+  * Added verbose argument to allow console status printing suppression.  
+  * Altering vignette and associated doc files to revert to previous user options that were updated.
 
 
 ## Test environments
