@@ -18,7 +18,7 @@ Authors@R: c(
            email = "ronald@stat.unm.edu",
            comment = c(ORCID = "0000-0002-5303-8139"))
     )
-Description: An implementation of the Bayesian approach to using 
+Description: A Bayesian approach to using 
     predictive probability in an ANOVA construct with a continuous normal response, 
     when threshold values must be obtained for the question of interest to be 
     evaluated as successful (Sieck and Christensen (2021) <doi:10.1002/qre.2802>). 
