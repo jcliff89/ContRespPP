@@ -78,10 +78,10 @@ predictive_results_jags <- gibbs.sampler.predictive.rjags(
   beta.precision = beta.precision,
   shape = shape,
   rate = rate,
-  n.sim = n.sim,
-  y.burnin = y.burnin,
-  b.sim = b.sim,
-  b.burnin = b.burnin,
+  n.sim = 1000,
+  y.burnin = 100,
+  b.sim = 20000,
+  b.burnin = 2000,
   phi.0 = phi.0,
   theta.t = theta.t,
   prob = prob,
@@ -99,12 +99,11 @@ posterior_results_rjags <- gibbs.sampler.posterior.rjags(
   shape = shape,
   rate = rate,
   phi.0 = phi.0,
-  b.sim = b.sim,
-  b.burnin = b.burnin,
+  b.sim = 50000,
+  b.burnin = 5000,
   prob = prob,
   factor.no.2way = factor.no.2way,
-  colnames.pick = colnames.pick,
-  seed = 512
+  colnames.pick = colnames.pick
 )
 
 
@@ -169,64 +168,42 @@ testthat::test_that("base R predictive posterior works", {
 
 ## Only run rjags test on Mac OS since JAGS RNG has differing results for other OS
 
-if(Sys.info()['sysname'] == "Darwin") {
-  # Predictive (rjags)
-  testthat::test_that("rjags predictive pp works", {
-    testthat::expect_equal(predictive_results_jags$pp, 0.7)
-  })
-  testthat::test_that("rjags predictive posterior works", {
-    testthat::expect_equal(
-      predictive_results_jags$posterior[10,],
-      data.frame(
-        eta = 351.12446,
-        alpha = 62.189768,
-        beta = 41.251491,
-        omega2 = -11.5724895,
-        omega3 = -17.2152391,
-        theta = 83.784724,
-        gamma = 31.757688,
-        alphabeta = -34.809998,
-        alphatheta = 42.67921,
-        alphagamma = 48.548013,
-        betatheta = 57.428093,
-        betagamma = 16.6852106,
-        thetagamma = 12.135702,
-        tau = 0.00042180727,
-        row.names = as.integer(10)
-      )
-    )
-  })
-  testthat::test_that("rjags predictive indicator works", {
-    testthat::expect_equal(predictive_results_jags$indicator, c(1, 0, 1, 1, 1, 1, 1, 0, 0, 1))
-  })
 
-  # Posterior (rjags)
-  testthat::test_that("rjags posterior probability works", {
-    testthat::expect_equal(posterior_results_rjags$probability, 0.7)
-  })
-  testthat::test_that("rjags posterior works", {
-    testthat::expect_equal(
-      posterior_results_rjags$posterior[10,],
-      c(
-        eta = 376.06796183672054,
-        alpha = 41.443110830794026,
-        beta = -32.467186112679855,
-        omega2 = 25.40386013084774,
-        omega3 = -13.109862581334514,
-        theta = 56.598592757067088,
-        gamma = 28.991130508340987,
-        alphabeta = 16.138461933670587,
-        alphatheta = 46.697133566645284,
-        alphagamma = 26.833356466019538,
-        betatheta = 115.942451444620644,
-        betagamma = 28.209858257950600,
-        thetagamma = 14.022252094204337,
-        tau = 0.00028087935,
-        m = 376.06796183672
-      )
-    )
-  })
-}
+# Predictive (rjags)
+testthat::test_that("rjags predictive pp works", {
+  testthat::expect_true(
+    predictive_results_jags$pp >= 0.990 &
+      predictive_results_jags$pp <= 1.0000
+  )
+})
+jagsPred_postMeans <- colMeans(predictive_results_jags$posterior)
+
+testthat::test_that("rjags predictive posterior works", {
+  testthat::expect_true(jagsPred_postMeans['eta'] > 361 & jagsPred_postMeans['eta'] < 365)
+  testthat::expect_true(jagsPred_postMeans['alpha'] > 56.8 & jagsPred_postMeans['alpha'] < 59.2)
+  testthat::expect_true(jagsPred_postMeans['beta'] > 14.8 & jagsPred_postMeans['beta'] < 18)
+  testthat::expect_true(jagsPred_postMeans['omega2'] > -14 & jagsPred_postMeans['omega2'] < -11.5)
+  testthat::expect_true(jagsPred_postMeans['omega3'] > -9.3 & jagsPred_postMeans['omega3'] < -7)
+  testthat::expect_true(jagsPred_postMeans['theta'] > 60 & jagsPred_postMeans['theta'] < 63)
+  testthat::expect_true(jagsPred_postMeans['gamma'] > 54 & jagsPred_postMeans['gamma'] < 57.5)
+  testthat::expect_true(jagsPred_postMeans['alphabeta'] > -18 & jagsPred_postMeans['alphabeta'] < -13.5)
+  testthat::expect_true(jagsPred_postMeans['alphatheta'] > 43 & jagsPred_postMeans['alphatheta'] < 46.5)
+  testthat::expect_true(jagsPred_postMeans['alphagamma'] > 13 & jagsPred_postMeans['alphagamma'] < 16)
+  testthat::expect_true(jagsPred_postMeans['betatheta'] > 66 & jagsPred_postMeans['betatheta'] < 69.5)
+  testthat::expect_true(jagsPred_postMeans['betagamma'] > 15.5 & jagsPred_postMeans['betagamma'] < 18.5)
+  testthat::expect_true(jagsPred_postMeans['thetagamma'] > 25 & jagsPred_postMeans['thetagamma'] < 26.5)
+})
+testthat::test_that("rjags predictive indicator works", {
+  testthat::expect_equal(predictive_results_jags$indicator, c(1, 0, 1, 1, 1, 1, 1, 0, 0, 1))
+})
+
+# Posterior (rjags)
+testthat::test_that("rjags posterior probability works", {
+  testthat::expect_true(
+    posterior_results_rjags$probability > 0.81 &
+      posterior_results_rjags$probability < 0.83
+  )
+})
 
 
 # Clean up environment after tests
