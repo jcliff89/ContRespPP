@@ -86,8 +86,7 @@ predictive_results_jags <- gibbs.sampler.predictive.rjags(
   theta.t = theta.t,
   prob = prob,
   factor.no.2way = factor.no.2way,
-  colnames.pick = colnames.pick,
-  seed = 512
+  colnames.pick = colnames.pick
 )
 
 # Run posterior results (rjags)
@@ -176,25 +175,22 @@ testthat::test_that("rjags predictive pp works", {
       predictive_results_jags$pp <= 1.0000
   )
 })
-jagsPred_postMeans <- colMeans(predictive_results_jags$posterior)
 
+jagsPred_postMeans <- colMeans(predictive_results_jags$posterior)
 testthat::test_that("rjags predictive posterior works", {
-  testthat::expect_true(jagsPred_postMeans['eta'] > 361 & jagsPred_postMeans['eta'] < 365)
-  testthat::expect_true(jagsPred_postMeans['alpha'] > 56.8 & jagsPred_postMeans['alpha'] < 59.2)
-  testthat::expect_true(jagsPred_postMeans['beta'] > 14.8 & jagsPred_postMeans['beta'] < 18)
-  testthat::expect_true(jagsPred_postMeans['omega2'] > -14 & jagsPred_postMeans['omega2'] < -11.5)
-  testthat::expect_true(jagsPred_postMeans['omega3'] > -9.3 & jagsPred_postMeans['omega3'] < -7)
-  testthat::expect_true(jagsPred_postMeans['theta'] > 60 & jagsPred_postMeans['theta'] < 63)
-  testthat::expect_true(jagsPred_postMeans['gamma'] > 54 & jagsPred_postMeans['gamma'] < 57.5)
-  testthat::expect_true(jagsPred_postMeans['alphabeta'] > -18 & jagsPred_postMeans['alphabeta'] < -13.5)
-  testthat::expect_true(jagsPred_postMeans['alphatheta'] > 43 & jagsPred_postMeans['alphatheta'] < 46.5)
-  testthat::expect_true(jagsPred_postMeans['alphagamma'] > 13 & jagsPred_postMeans['alphagamma'] < 16)
-  testthat::expect_true(jagsPred_postMeans['betatheta'] > 66 & jagsPred_postMeans['betatheta'] < 69.5)
-  testthat::expect_true(jagsPred_postMeans['betagamma'] > 15.5 & jagsPred_postMeans['betagamma'] < 18.5)
-  testthat::expect_true(jagsPred_postMeans['thetagamma'] > 25 & jagsPred_postMeans['thetagamma'] < 26.5)
-})
-testthat::test_that("rjags predictive indicator works", {
-  testthat::expect_equal(predictive_results_jags$indicator, c(1, 0, 1, 1, 1, 1, 1, 0, 0, 1))
+  testthat::expect_true(jagsPred_postMeans['eta'] > 361 & jagsPred_postMeans['eta'] < 365, label = "eta")
+  testthat::expect_true(jagsPred_postMeans['alpha'] > 56.8 & jagsPred_postMeans['alpha'] < 59.2, label = "alpha")
+  testthat::expect_true(jagsPred_postMeans['beta'] > 14 & jagsPred_postMeans['beta'] < 18.5, label = "beta")
+  testthat::expect_true(jagsPred_postMeans['omega2'] > -14 & jagsPred_postMeans['omega2'] < -11.5, label = "omega2")
+  testthat::expect_true(jagsPred_postMeans['omega3'] > -9.3 & jagsPred_postMeans['omega3'] < -7, label = "omega3")
+  testthat::expect_true(jagsPred_postMeans['theta'] > 60 & jagsPred_postMeans['theta'] < 63, label = "theta")
+  testthat::expect_true(jagsPred_postMeans['gamma'] > 54 & jagsPred_postMeans['gamma'] < 57.5, label = "gamma")
+  testthat::expect_true(jagsPred_postMeans['alphabeta'] > -18 & jagsPred_postMeans['alphabeta'] < -13.5, label = "alphabeta")
+  testthat::expect_true(jagsPred_postMeans['alphatheta'] > 43 & jagsPred_postMeans['alphatheta'] < 46.5, label = "alphatheta")
+  testthat::expect_true(jagsPred_postMeans['alphagamma'] > 13 & jagsPred_postMeans['alphagamma'] < 16, label = "alphagamma")
+  testthat::expect_true(jagsPred_postMeans['betatheta'] > 66 & jagsPred_postMeans['betatheta'] < 69.5, label = "betatheta")
+  testthat::expect_true(jagsPred_postMeans['betagamma'] > 15.5 & jagsPred_postMeans['betagamma'] < 18.5, label = "betagamma")
+  testthat::expect_true(jagsPred_postMeans['thetagamma'] > 23.5 & jagsPred_postMeans['thetagamma'] < 27.5, label = "thetagamma")
 })
 
 # Posterior (rjags)
