@@ -69,41 +69,42 @@ posterior_results <- gibbs.sampler.posterior(
   seed = 512
 )
 
-# Run predictive results (rjags)
-predictive_results_jags <- gibbs.sampler.predictive.rjags(
-  X = X,
-  Y = Y,
-  n.seen = n.seen,
-  beta.mean = beta.mean,
-  beta.precision = beta.precision,
-  shape = shape,
-  rate = rate,
-  n.sim = 1000,
-  y.burnin = 100,
-  b.sim = 20000,
-  b.burnin = 2000,
-  phi.0 = phi.0,
-  theta.t = theta.t,
-  prob = prob,
-  factor.no.2way = factor.no.2way,
-  colnames.pick = colnames.pick
-)
-
-# Run posterior results (rjags)
-posterior_results_rjags <- gibbs.sampler.posterior.rjags(
-  X = X[1:75,],
-  Y = Y[1:75],
-  beta.mean = beta.mean,
-  beta.precision = beta.precision,
-  shape = shape,
-  rate = rate,
-  phi.0 = phi.0,
-  b.sim = 50000,
-  b.burnin = 5000,
-  prob = prob,
-  factor.no.2way = factor.no.2way,
-  colnames.pick = colnames.pick
-)
+# Removed from CRAN tests: Only run locally
+# # Run predictive results (rjags)
+# predictive_results_jags <- gibbs.sampler.predictive.rjags(
+#   X = X,
+#   Y = Y,
+#   n.seen = n.seen,
+#   beta.mean = beta.mean,
+#   beta.precision = beta.precision,
+#   shape = shape,
+#   rate = rate,
+#   n.sim = 1000,
+#   y.burnin = 100,
+#   b.sim = 20000,
+#   b.burnin = 2000,
+#   phi.0 = phi.0,
+#   theta.t = theta.t,
+#   prob = prob,
+#   factor.no.2way = factor.no.2way,
+#   colnames.pick = colnames.pick
+# )
+#
+# # Run posterior results (rjags)
+# posterior_results_rjags <- gibbs.sampler.posterior.rjags(
+#   X = X[1:75,],
+#   Y = Y[1:75],
+#   beta.mean = beta.mean,
+#   beta.precision = beta.precision,
+#   shape = shape,
+#   rate = rate,
+#   phi.0 = phi.0,
+#   b.sim = 50000,
+#   b.burnin = 5000,
+#   prob = prob,
+#   factor.no.2way = factor.no.2way,
+#   colnames.pick = colnames.pick
+# )
 
 
 ### Runs tests on resulting objects elements
@@ -165,44 +166,42 @@ testthat::test_that("base R predictive posterior works", {
   )
 })
 
-## Only run rjags test on Mac OS since JAGS RNG has differing results for other OS
-
-
-# Predictive (rjags)
-testthat::test_that("rjags predictive pp works", {
-  testthat::expect_true(
-    predictive_results_jags$pp >= 0.990 &
-      predictive_results_jags$pp <= 1.0000
-  )
-})
-
-jagsPred_postMeans <- colMeans(predictive_results_jags$posterior)
-testthat::test_that("rjags predictive posterior works", {
-  testthat::expect_true(jagsPred_postMeans['eta'] > 361 & jagsPred_postMeans['eta'] < 365, label = "eta")
-  testthat::expect_true(jagsPred_postMeans['alpha'] > 56.8 & jagsPred_postMeans['alpha'] < 59.2, label = "alpha")
-  testthat::expect_true(jagsPred_postMeans['beta'] > 14 & jagsPred_postMeans['beta'] < 18.5, label = "beta")
-  testthat::expect_true(jagsPred_postMeans['omega2'] > -14 & jagsPred_postMeans['omega2'] < -11.5, label = "omega2")
-  testthat::expect_true(jagsPred_postMeans['omega3'] > -9.3 & jagsPred_postMeans['omega3'] < -7, label = "omega3")
-  testthat::expect_true(jagsPred_postMeans['theta'] > 60 & jagsPred_postMeans['theta'] < 63, label = "theta")
-  testthat::expect_true(jagsPred_postMeans['gamma'] > 54 & jagsPred_postMeans['gamma'] < 57.5, label = "gamma")
-  testthat::expect_true(jagsPred_postMeans['alphabeta'] > -18 & jagsPred_postMeans['alphabeta'] < -13.5, label = "alphabeta")
-  testthat::expect_true(jagsPred_postMeans['alphatheta'] > 43 & jagsPred_postMeans['alphatheta'] < 46.5, label = "alphatheta")
-  testthat::expect_true(jagsPred_postMeans['alphagamma'] > 13 & jagsPred_postMeans['alphagamma'] < 16, label = "alphagamma")
-  testthat::expect_true(jagsPred_postMeans['betatheta'] > 66 & jagsPred_postMeans['betatheta'] < 69.5, label = "betatheta")
-  testthat::expect_true(jagsPred_postMeans['betagamma'] > 15.5 & jagsPred_postMeans['betagamma'] < 18.5, label = "betagamma")
-  testthat::expect_true(jagsPred_postMeans['thetagamma'] > 23.5 & jagsPred_postMeans['thetagamma'] < 27.5, label = "thetagamma")
-})
-
-# Posterior (rjags)
-testthat::test_that("rjags posterior probability works", {
-  testthat::expect_true(
-    posterior_results_rjags$probability > 0.81 &
-      posterior_results_rjags$probability < 0.83
-  )
-})
+# ## Only run rjags test locally. Removed from CRAN.
+# # Predictive (rjags)
+# testthat::test_that("rjags predictive pp works", {
+#   testthat::expect_true(
+#     predictive_results_jags$pp >= 0.990 &
+#       predictive_results_jags$pp <= 1.0000
+#   )
+# })
+#
+# jagsPred_postMeans <- colMeans(predictive_results_jags$posterior)
+# testthat::test_that("rjags predictive posterior works", {
+#   testthat::expect_true(jagsPred_postMeans['eta'] > 361 & jagsPred_postMeans['eta'] < 365, label = "eta")
+#   testthat::expect_true(jagsPred_postMeans['alpha'] > 56.8 & jagsPred_postMeans['alpha'] < 59.2, label = "alpha")
+#   testthat::expect_true(jagsPred_postMeans['beta'] > 14 & jagsPred_postMeans['beta'] < 18.5, label = "beta")
+#   testthat::expect_true(jagsPred_postMeans['omega2'] > -14 & jagsPred_postMeans['omega2'] < -11.5, label = "omega2")
+#   testthat::expect_true(jagsPred_postMeans['omega3'] > -9.3 & jagsPred_postMeans['omega3'] < -7, label = "omega3")
+#   testthat::expect_true(jagsPred_postMeans['theta'] > 60 & jagsPred_postMeans['theta'] < 63, label = "theta")
+#   testthat::expect_true(jagsPred_postMeans['gamma'] > 54 & jagsPred_postMeans['gamma'] < 57.5, label = "gamma")
+#   testthat::expect_true(jagsPred_postMeans['alphabeta'] > -18 & jagsPred_postMeans['alphabeta'] < -13.5, label = "alphabeta")
+#   testthat::expect_true(jagsPred_postMeans['alphatheta'] > 43 & jagsPred_postMeans['alphatheta'] < 46.5, label = "alphatheta")
+#   testthat::expect_true(jagsPred_postMeans['alphagamma'] > 13 & jagsPred_postMeans['alphagamma'] < 16, label = "alphagamma")
+#   testthat::expect_true(jagsPred_postMeans['betatheta'] > 66 & jagsPred_postMeans['betatheta'] < 69.5, label = "betatheta")
+#   testthat::expect_true(jagsPred_postMeans['betagamma'] > 15.5 & jagsPred_postMeans['betagamma'] < 18.5, label = "betagamma")
+#   testthat::expect_true(jagsPred_postMeans['thetagamma'] > 23.5 & jagsPred_postMeans['thetagamma'] < 27.5, label = "thetagamma")
+# })
+#
+# # Posterior (rjags)
+# testthat::test_that("rjags posterior probability works", {
+#   testthat::expect_true(
+#     posterior_results_rjags$probability > 0.81 &
+#       posterior_results_rjags$probability < 0.83
+#   )
+# })
 
 
 # Clean up environment after tests
 rm(full.data, X, Y, n.seen, beta.mean, beta.precision, rate, shape,
    n.sim, y.burnin, b.sim, b.burnin, phi.0, theta.t, prob, factor.no.2way, colnames.pick,
-   posterior_results, predictive_results, posterior_results_rjags, predictive_results_jags)
+   posterior_results, predictive_results)#, posterior_results_rjags, predictive_results_jags)

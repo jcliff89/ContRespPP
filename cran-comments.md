@@ -1,10 +1,5 @@
 ## Resubmission
-This is a resubmission based on previous feedback. In this version I have:
-
-  * Omitted "An implementation of" from the beginning of the description text.  
-  * Added \value Rd-tags for ContRespPP S3 print and summary methods.  
-  * Added verbose argument to allow console status printing suppression.  
-  * Altering vignette and associated doc files to revert to previous user options that were updated.
+Incremented version based on previous feedback. Removed RJAGS tests due to varying seed performance and sample variability on differing OS.
 
 
 ## Test environments
