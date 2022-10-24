@@ -1,5 +1,7 @@
 library(ContRespPP)
 
+# Add extra comment
+
 ### Set parameters
 full.data <- ContRespPP::exData
 
